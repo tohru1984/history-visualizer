@@ -356,7 +356,7 @@ function App() {
 
         const activeEvents = showAllPast
             ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance ?? 3) >= detailLevel))
-            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + 1000000) && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance ?? 3) >= detailLevel));
+            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + getDefaultDuration(e.year)) && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance ?? 3) >= detailLevel));
 
         const eGeoJSON: any = {
             type: 'FeatureCollection',
@@ -405,6 +405,15 @@ function App() {
     const franceEras = FRANCE_ERAS.filter(e => year >= e.start && year < e.end);
     const germanyEras = GERMANY_ERAS.filter(e => year >= e.start && year < e.end);
     const worldEras = WORLD_ERAS.filter(e => year >= e.start && year < e.end);
+    const getDefaultDuration = (startYear: number) => {
+        if (startYear < -100000) return 50000;
+        if (startYear < -10000) return 2000;
+        if (startYear < 0) return 150;
+        if (startYear < 1500) return 50;
+        if (startYear < 1900) return 10;
+        return 3;
+    };
+
     const lifeExp = getLifeExpectancy(year);
     const population = getPopulation(year);
     const temperature = getTemperature(year);
@@ -730,7 +739,7 @@ function App() {
                         <h2>{language === 'ja' ? 'イベント一覧' : 'History Log'}</h2>
                         <div className="event-list">
                             {humanEvents
-                                .filter(e => year >= e.year && year <= (e.year_end || e.year + 1000000))
+                                .filter(e => year >= e.year && year <= (e.year_end || e.year + getDefaultDuration(e.year)))
                                 .filter(e => showWars || e.type !== 'war')
                                 .filter(e => showMegafauna || e.type !== 'megafauna')
                                 .filter(e => showHominins || e.type !== 'hominin')
