@@ -409,6 +409,29 @@ function App() {
     const population = getPopulation(year);
     const temperature = getTemperature(year);
 
+    // WWII Status Logic
+    const getWW2Status = (currentYear: number) => {
+        if (!showWW2 || currentYear < 1939 || currentYear > 1945.7) return null;
+
+        let phase = '';
+        if (currentYear >= 1939 && currentYear < 1941.5) {
+            phase = language === 'ja' ? '初期 (枢軸国の拡大)' : 'Early Phase (Axis Expansion)';
+        } else if (currentYear >= 1941.5 && currentYear < 1943) {
+            phase = language === 'ja' ? '激戦・転換期' : 'Turning Points';
+        } else if (currentYear >= 1943 && currentYear < 1944.5) {
+            phase = language === 'ja' ? '連合国への反攻' : 'Allied Counter-Offensive';
+        } else {
+            phase = language === 'ja' ? '枢軸国の崩壊・終結' : 'Axis Collapse & End';
+        }
+
+        return {
+            phase,
+            factions: language === 'ja' ? '枢軸国 vs 連合国' : 'Axis vs Allies',
+            casualties: language === 'ja' ? '約6,000万人' : '~60 Million'
+        };
+    };
+    const ww2Status = getWW2Status(year);
+
     const getActiveEffects = () => {
         const effects = [];
         // ボトルネック / 自然の脅威 (危機的状況)
@@ -542,6 +565,25 @@ function App() {
                     <div className="status-badge temperature-badge">
                         <div className="badge-label">{language === 'ja' ? '世界の平均気温' : 'Avg Temp'}</div>
                         <div className="badge-value">{temperature.toFixed(1)} <span className="unit">℃</span></div>
+                    </div>
+                )}
+
+                {ww2Status && (
+                    <div className="status-badge" style={{ marginTop: '0.5rem', background: 'rgba(255, 68, 68, 0.15)', borderLeft: '4px solid #ff4444' }}>
+                        <div className="badge-group">
+                            <div className="badge-item" style={{ minWidth: '100%', marginBottom: '0.5rem' }}>
+                                <div className="badge-label" style={{ color: '#ffaaaa' }}>{language === 'ja' ? '第2次世界大戦' : 'WWII Status'}</div>
+                                <div className="badge-value" style={{ fontSize: '1.2rem', color: '#ffdddd' }}>{ww2Status.phase}</div>
+                            </div>
+                            <div className="badge-item" style={{ marginRight: '1rem' }}>
+                                <div className="badge-label" style={{ color: '#ffaaaa' }}>{language === 'ja' ? '主要陣営' : 'Factions'}</div>
+                                <div className="badge-value" style={{ fontSize: '1rem' }}>{ww2Status.factions}</div>
+                            </div>
+                            <div className="badge-item">
+                                <div className="badge-label" style={{ color: '#ffaaaa' }}>{language === 'ja' ? '総犠牲者数' : 'Casualties'}</div>
+                                <div className="badge-value" style={{ fontSize: '1rem' }}>{ww2Status.casualties}</div>
+                            </div>
+                        </div>
                     </div>
                 )}
 

@@ -11,6 +11,7 @@ export * from './types';
 
 import { megafaunaEvents } from './megafauna';
 import { homininEvents } from './hominins';
+import { ww2Events } from './ww2_events';
 
 export const humanEvents: HumanEvent[] = [
     ...evolutionEvents,
@@ -21,7 +22,8 @@ export const humanEvents: HumanEvent[] = [
     ...warEvents,
     ...megafaunaEvents,
     ...homininEvents,
-    ...countryEvents
+    ...countryEvents,
+    ...ww2Events
 ];
 
 export {
@@ -33,5 +35,6 @@ export {
     warEvents,
     megafaunaEvents,
     homininEvents,
-    countryEvents
+    countryEvents,
+    ww2Events
 };
