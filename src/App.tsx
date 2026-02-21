@@ -206,7 +206,7 @@ function App() {
 
     return (
         <div className="app-container">
-            <header>
+            <header className="app-header">
                 <div className="logo">
                     <span className="icon">🌍</span>
                     <h1>History Visualizer</h1>
