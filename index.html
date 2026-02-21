@@ -62,17 +62,26 @@
 
     .landing-footer {
       padding: 4rem 2rem;
-      max-width: 800px;
+      max-width: 1200px;
       margin: 0 auto;
       text-align: center;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: flex-start;
+      gap: 2rem;
+      flex-wrap: wrap;
     }
 
-    .support-section {
+    .support-section,
+    .contact-section {
       background: #111;
       padding: 2.5rem;
       border-radius: 16px;
-      margin-bottom: 3rem;
       border: 1px solid #222;
+      flex: 1;
+      min-width: 300px;
+      margin-bottom: 0;
     }
 
     .support-section h2 {
@@ -154,8 +163,26 @@
   </section>
 
   <footer class="landing-footer">
+    <div class="contact-section">
+      <h2 style="margin-top: 0; color: #fff;">💬 お問い合わせ・ご意見</h2>
+      <p style="color: #aaa; margin-bottom: 2rem; line-height: 1.6;">
+        ツールのバグ報告、機能のリクエスト、歴史データに関するご指摘などお待ちしております。<br>
+        「こんな機能が欲しい！」「ここが面白かった！」といったご感想もお気軽にどうぞ！
+      </p>
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="https://www.facebook.com/tohru.kawaai" target="_blank" class="share-btn facebook"
+          style="padding: 0.8rem 1.5rem; border-radius: 8px;">
+          📘 Facebookで連絡する
+        </a>
+        <a href="mailto:tohru.kawaai@gmail.com" class="share-btn"
+          style="background: #333; border: 1px solid #555; padding: 0.8rem 1.5rem; border-radius: 8px;">
+          ✉️ メールを送る
+        </a>
+      </div>
+    </div>
+
     <div class="support-section">
-      <h2>☕ クリエイターを支援する</h2>
+      <h2 style="margin-top: 0; color: #fff;">☕ クリエイターを支援する</h2>
       <p style="color: #aaa; margin-bottom: 2rem; line-height: 1.6;">
         このプロジェクトは個人の開発によって運営されています。<br>
         もしツールを楽しんでいただけたら、あるいは応援していただける場合は、お好きな額でのドネーション（投げ銭）をいただけると今後の開発の大きな励みになります！

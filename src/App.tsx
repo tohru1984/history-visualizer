@@ -178,8 +178,8 @@ function App() {
         (map.current.getSource('migrations') as maplibregl.GeoJSONSource).setData(mGeoJSON);
 
         const activeEvents = showAllPast
-            ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance || 3) >= detailLevel))
-            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + 1000000) && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance || 3) >= detailLevel));
+            ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance ?? 3) >= detailLevel))
+            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + 1000000) && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance ?? 3) >= detailLevel));
 
         const eGeoJSON: any = {
             type: 'FeatureCollection',
@@ -403,7 +403,7 @@ function App() {
                                 .filter(e => showWars || e.type !== 'war')
                                 .filter(e => showMegafauna || e.type !== 'megafauna')
                                 .filter(e => showHominins || e.type !== 'hominin')
-                                .filter(e => ((e.importance || 3) >= detailLevel))
+                                .filter(e => ((e.importance ?? 3) >= detailLevel))
                                 .sort((a, b) => b.year - a.year)
                                 .map(e => (
                                     <div key={e.id} className="event-card" onClick={() => {
