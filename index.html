@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>History Visualizer - 人類史と地球環境の変遷をインタラクティブに体験</title>
+  <meta name="description"
+    content="History Visualizerは、700万年以上前の人類の起源から現代までの歴史、気温変動、人口推移、そして主要な戦争をインタラクティブなマップで体験できるWebアプリです。" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #050505;
+      color: #eaeaea;
+    }
+
+    .landing-header {
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+      background: #0a0a0a;
+      border-bottom: 1px solid #222;
+    }
+
+    .landing-header h1 {
+      margin: 0 0 1rem 0;
+      font-size: 2.5rem;
+      color: #ffcc00;
+      letter-spacing: 2px;
+    }
+
+    .landing-header p {
+      color: #aaa;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+
+    .visualizer-wrapper {
+      width: 100%;
+      height: 75vh;
+      min-height: 600px;
+      border-bottom: 1px solid #222;
+      position: relative;
+    }
+
+    #root {
+      width: 100%;
+      height: 100%;
+    }
+
+    .landing-footer {
+      padding: 4rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .support-section {
+      background: #111;
+      padding: 2.5rem;
+      border-radius: 16px;
+      margin-bottom: 3rem;
+      border: 1px solid #222;
+    }
+
+    .support-section h2 {
+      margin-top: 0;
+      color: #fff;
+    }
+
+    .share-section h3 {
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+
+    .share-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .share-btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .share-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .share-btn.twitter {
+      background: #000;
+      border: 1px solid #444;
+    }
+
+    .share-btn.twitter:hover {
+      background: #222;
+    }
+
+    .share-btn.facebook {
+      background: #1877f2;
+    }
+
+    .share-btn.line {
+      background: #00c300;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="landing-header">
+    <h1>History Visualizer</h1>
+    <p>
+      人類の起源から現代に至るまでの壮大な歴史を、地図上でインタラクティブに体験できるビジュアライザーです。<br>
+      700万年前に遡る初期ホミニンの分化から、グレートジャーニー、文明の興亡、そして現代の戦争・紛争までを網羅。地球環境データ（気温・人口推移）も確認できます。
+    </p>
+  </header>
+
+  <section class="visualizer-wrapper">
+    <div id="root"></div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="support-section">
+      <h2>☕ クリエイターを支援する</h2>
+      <p style="color: #aaa; margin-bottom: 2rem; line-height: 1.6;">
+        このプロジェクトは個人の開発によって運営されています。<br>
+        もしツールを楽しんでいただけたら、あるいは応援していただける場合は、お好きな額でのドネーション（投げ銭）をいただけると今後の開発の大きな励みになります！
+      </p>
+
+      <!-- Buy Me A Coffee widget/button placeholder -->
+      <a href="https://www.buymeacoffee.com/" target="_blank" style="display:inline-block; margin-bottom: 1.5rem;">
+        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee"
+          style="height: 50px !important;width: 217px !important;">
+      </a>
+
+      <!-- Google AdSense Placeholder -->
+      <div
+        style="margin-top: 2rem; padding: 2rem 1rem; border: 1px dashed #444; background: #0a0a0a; color: #666; font-size: 0.9rem; border-radius: 8px;">
+        Google AdSense 広告表示エリア（審査通過後にコードを配置します）
+      </div>
+    </div>
+
+    <div class="share-section">
+      <h3>🌍 SNSでシェアする</h3>
+      <div class="share-buttons">
+        <!-- Replace URL with actual domain when deployed -->
+        <a href="https://twitter.com/intent/tweet?text=History%20Visualizer%20-%20人類史をインタラクティブに体験&url=https://reiown.net/history-visualizer"
+          target="_blank" class="share-btn twitter">X (旧Twitter) でシェア</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=https://reiown.net/history-visualizer" target="_blank"
+          class="share-btn facebook">Facebook でシェア</a>
+        <a href="https://social-plugins.line.me/lineit/share?url=https://reiown.net/history-visualizer" target="_blank"
+          class="share-btn line">LINE で送る</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

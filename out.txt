@@ -1,0 +1,7 @@
+
+    Directory: G:\dev\プロジェクト\現行プロジェクト\human-history-simulator
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          2026/02/20    20:30              0 out.txt
+
