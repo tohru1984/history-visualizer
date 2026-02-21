@@ -43,6 +43,7 @@ function App() {
     const [showMegafauna, setShowMegafauna] = useState(true)
     const [showHominins, setShowHominins] = useState(true)
     const [showAllPast, setShowAllPast] = useState(false)
+    const [detailLevel, setDetailLevel] = useState<number>(3) // 1: Detail, 3: Normal, 5: Major
     const [selectedEvent, setSelectedEvent] = useState<HumanEvent | null>(null)
     const mapContainer = useRef<HTMLDivElement>(null)
     const map = useRef<maplibregl.Map | null>(null)
@@ -177,8 +178,8 @@ function App() {
         (map.current.getSource('migrations') as maplibregl.GeoJSONSource).setData(mGeoJSON);
 
         const activeEvents = showAllPast
-            ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin'))
-            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + 1000000) && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin'));
+            ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance || 3) >= detailLevel))
+            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + 1000000) && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance || 3) >= detailLevel));
 
         const eGeoJSON: any = {
             type: 'FeatureCollection',
@@ -278,6 +279,12 @@ function App() {
                             {era.name}
                         </button>
                     ))}
+                    <div className="detail-filter">
+                        <span>情報量:</span>
+                        <button className={`detail-btn ${detailLevel === 5 ? 'active' : ''}`} onClick={() => setDetailLevel(5)}>厳選</button>
+                        <button className={`detail-btn ${detailLevel === 3 ? 'active' : ''}`} onClick={() => setDetailLevel(3)}>標準</button>
+                        <button className={`detail-btn ${detailLevel === 1 ? 'active' : ''}`} onClick={() => setDetailLevel(1)}>詳細</button>
+                    </div>
                     <button className="era-tab" onClick={toggleFullscreen} style={{ marginLeft: '1rem', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '1.5rem' }}>
                         ⛶ 全画面
                     </button>
@@ -396,6 +403,7 @@ function App() {
                                 .filter(e => showWars || e.type !== 'war')
                                 .filter(e => showMegafauna || e.type !== 'megafauna')
                                 .filter(e => showHominins || e.type !== 'hominin')
+                                .filter(e => ((e.importance || 3) >= detailLevel))
                                 .sort((a, b) => b.year - a.year)
                                 .map(e => (
                                     <div key={e.id} className="event-card" onClick={() => {

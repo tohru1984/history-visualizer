@@ -15,7 +15,8 @@ export const modernEvents: HumanEvent[] = [
         year: 1769.1, year_end: 1840,
         lat: 55.8, lon: -4.3,
         description: 'イギリス。人力や畜力から機械動力へ。人類史最大の生産性向上。',
-        type: 'modern'
+        type: 'modern',
+        importance: 5
     },
     {
         id: 'periodic_table_mendeleev',
@@ -159,7 +160,8 @@ export const modernEvents: HumanEvent[] = [
         year: 1914.5, year_end: 1918.8,
         lat: 50.8, lon: 4.4,
         description: '欧州。総力戦の時代。航空機や毒ガス、戦車などの近代兵器が登場。',
-        type: 'modern'
+        type: 'modern',
+        importance: 5
     },
     {
         id: 'penicillin_fleming',
@@ -183,7 +185,8 @@ export const modernEvents: HumanEvent[] = [
         year: 1939.67, year_end: 1945.6,
         lat: 52.2, lon: 21.0,
         description: 'ポーランド侵攻。地球規模の未曾有の破滅。',
-        type: 'modern'
+        type: 'modern',
+        importance: 5
     },
     {
         id: 'hiroshima_nagasaki',
@@ -199,7 +202,8 @@ export const modernEvents: HumanEvent[] = [
         year: 1947.9, year_end: 1960,
         lat: 40.7, lon: -74.4,
         description: '米国ベル研究所。電子工学の心臓部。現代IT社会の真の出発点。',
-        type: 'modern'
+        type: 'modern',
+        importance: 5
     },
     {
         id: 'dna_structure_watson_crick',
@@ -263,7 +267,8 @@ export const modernEvents: HumanEvent[] = [
         year: 1991.6, year_end: 2000,
         lat: 46.2, lon: 6.0,
         description: 'CERN。情報の民主化。世界がウェブという巨大な神経系で繋がる。',
-        type: 'modern'
+        type: 'modern',
+        importance: 5
     },
     {
         id: 'smartphone_iphone',
@@ -271,7 +276,8 @@ export const modernEvents: HumanEvent[] = [
         year: 2007.48, year_end: 2015,
         lat: 37.3, lon: -122.0,
         description: '2007年6月29日。手のひらの中に常時接続のインターネットがある世界の始まり。',
-        type: 'modern'
+        type: 'modern',
+        importance: 5
     },
     {
         id: 'great_east_japan_earthquake',
@@ -303,7 +309,8 @@ export const modernEvents: HumanEvent[] = [
         year: 2022.91, year_end: 2024,
         lat: 37.7, lon: -122.4,
         description: '2022年11月30日。対話型AIの衝撃。わずか5日で100万ユーザーに到達し、人類とAIの関係性を根本から変えた歴史的転換点。',
-        type: 'modern'
+        type: 'modern',
+        importance: 5
     },
     {
         id: 'gpt4_release',
