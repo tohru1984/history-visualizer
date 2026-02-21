@@ -17,30 +17,39 @@
     }
 
     .landing-header {
-      padding: 3rem 2rem 2rem;
-      text-align: center;
+      padding: 1.2rem 2rem;
       background: #0a0a0a;
       border-bottom: 1px solid #222;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .landing-header-text {
+      text-align: left;
+      flex: 1;
+      max-width: 900px;
     }
 
     .landing-header h1 {
-      margin: 0 0 1rem 0;
-      font-size: 2.5rem;
+      margin: 0 0 0.4rem 0;
+      font-size: 1.6rem;
       color: #ffcc00;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
     }
 
     .landing-header p {
       color: #aaa;
-      max-width: 1000px;
-      margin: 0 auto;
-      line-height: 1.6;
-      font-size: 1.05rem;
+      margin: 0;
+      line-height: 1.5;
+      font-size: 0.95rem;
     }
 
     .visualizer-wrapper {
       width: 100%;
-      height: 75vh;
+      height: 80vh;
       min-height: 600px;
       border-bottom: 1px solid #222;
       position: relative;
@@ -78,18 +87,19 @@
 
     .share-buttons {
       display: flex;
-      justify-content: center;
-      gap: 1rem;
+      justify-content: flex-end;
+      gap: 0.8rem;
       flex-wrap: wrap;
     }
 
     .share-btn {
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
       text-decoration: none;
       color: #fff;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
+      white-space: nowrap;
       transition: all 0.2s;
     }
 
@@ -121,19 +131,21 @@
 
 <body>
   <header class="landing-header">
-    <h1>History Visualizer</h1>
-    <p>
-      人類の起源から現代に至るまでの壮大な歴史を、地図上でインタラクティブに体験できるビジュアライザーです。<br>
-      700万年前から現代まで、地球の環境データ（気温・人口）の変化と共に、人類の歩みを俯瞰してみましょう。
-    </p>
-    <div class="share-buttons" style="margin-top: 1.5rem;">
+    <div class="landing-header-text">
+      <h1>History Visualizer</h1>
+      <p>
+        人類の起源から現代に至るまでの壮大な歴史を、地図上でインタラクティブに体験できるビジュアライザーです。<br>
+        700万年前から現代まで、地球の環境データ（気温・人口）の変化と共に、人類の歩みを俯瞰してみましょう。
+      </p>
+    </div>
+    <div class="share-buttons">
       <!-- Replace URL with actual domain when deployed -->
       <a href="https://twitter.com/intent/tweet?text=History%20Visualizer%20-%20人類史をインタラクティブに体験&url=https://reiown.net/history-visualizer"
-        target="_blank" class="share-btn twitter">X (旧Twitter)でシェア</a>
+        target="_blank" class="share-btn twitter">X でシェア</a>
       <a href="https://www.facebook.com/sharer/sharer.php?u=https://reiown.net/history-visualizer" target="_blank"
-        class="share-btn facebook">Facebookでシェア</a>
+        class="share-btn facebook">Facebook</a>
       <a href="https://social-plugins.line.me/lineit/share?url=https://reiown.net/history-visualizer" target="_blank"
-        class="share-btn line">LINEで送る</a>
+        class="share-btn line">LINE</a>
     </div>
   </header>
 
