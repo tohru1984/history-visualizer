@@ -422,19 +422,22 @@ footer {
 }
 
 .era-label {
-    width: 60px;
+    width: 80px; /* Increase fixed width slightly for longer labels */
     font-size: 0.6rem;
     font-weight: 800;
     color: #444;
     text-transform: uppercase;
     letter-spacing: 1px;
+    flex-shrink: 0; /* Prevent label from shrinking so the track starts consistently */
 }
 
 .era-name-display {
-    flex: 1;
+    width: 60px; /* Fixed width to make the label column consistent across all rows */
     display: flex;
-    gap: 1rem;
+    flex-direction: column; /* Stack tags vertically to save horizontal space while keeping fixed width */
+    gap: 0.2rem;
     overflow: hidden;
+    margin-right: 1rem; /* Spacing before the timeline track starts */
 }
 
 .era-tag {

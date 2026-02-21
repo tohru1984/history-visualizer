@@ -1122,6 +1122,7 @@ function App() {
                                     <div className="era-label" style={{ color: row.color }}>
                                         {language === 'ja' ? row.label : row.label_en}
                                     </div>
+                                    <div className="era-name-display"></div>
                                     <div className="timeline-marker-track">
                                         {row.key === 'ww2' && (
                                             <div
@@ -1168,9 +1169,10 @@ function App() {
                         // Migration paths row
                         const migrationRow = migrationDots.length > 0 ? (
                             <div key="migration-paths" className="era-row visible" style={{ minHeight: '18px' }}>
-                                <div className="era-label" style={{ color: '#ffcc00' }}>
-                                    {language === 'ja' ? '拡散' : 'Routes'}
+                                <div className="era-label" style={{ color: '#44ff44' }}>
+                                    {language === 'ja' ? '移動ルート' : 'Migration Routes'}
                                 </div>
+                                <div className="era-name-display"></div>
                                 <div className="timeline-marker-track">
                                     {migrationDots.map(m => (
                                         <div
