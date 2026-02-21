@@ -214,7 +214,7 @@ export const countryEvents: HumanEvent[] = [
         description: 'ドイツ軍による大規模な都市爆撃。市民が地下鉄に避難しながらも抗戦を続けた。',
         description_en: 'A prolonged bombing campaign by the German Luftwaffe. Londoners took shelter in the Underground while resisting.',
         type: 'ww2',
-        importance: 35
+        importance: 3
     },
     {
         id: 'uk_nhs', name: '国民保健サービス(NHS)創設', name_ja: 'NHS 創設', name_en: 'NHS Founded',
