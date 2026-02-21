@@ -74,7 +74,7 @@ export const countryEvents: HumanEvent[] = [
     },
     {
         id: 'us_atomic_bomb', name: '原爆投下', name_ja: '原爆投下（広島・長崎）', name_en: 'Atomic Bombings of Hiroshima & Nagasaki',
-        year: 1945, year_end: 1945.7, lat: 34.4, lon: 132.5,
+        year: 1945.6, year_end: 1945.7, lat: 34.4, lon: 132.5,
         description: '1945年8月6日広島、8月9日長崎。人類史上初の核兵器使用。戦争終結を決定づけた。',
         description_en: 'Aug 6 Hiroshima, Aug 9 Nagasaki. First use of nuclear weapons in history. Ended WWII.',
         type: 'war', importance: 5
