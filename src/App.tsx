@@ -404,7 +404,6 @@ function App() {
     const ukEras = UK_ERAS.filter(e => year >= e.start && year < e.end);
     const franceEras = FRANCE_ERAS.filter(e => year >= e.start && year < e.end);
     const germanyEras = GERMANY_ERAS.filter(e => year >= e.start && year < e.end);
-    const worldEras = WORLD_ERAS.filter(e => year >= e.start && year < e.end);
     const getDefaultDuration = (startYear: number) => {
         if (startYear < -100000) return 50000;
         if (startYear < -10000) return 2000;
@@ -816,9 +815,15 @@ function App() {
                                 <div className="era-row japan-eras visible" style={{ minHeight: '20px' }}>
                                     <div className="era-label">Japan</div>
                                     <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
-                                        {japanEras.map(e => (
-                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                        ))}
+                                    </div>
+                                    <div className="era-timeline-container">
+                                        {japanEras.map(e => {
+                                            const left = getPos(e.start);
+                                            const right = getPos(e.end);
+                                            const width = right - left;
+                                            if (left >= 100 || right <= 0) return null;
+                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                        })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
                                         {visibleEraDots.map(e => (
@@ -860,9 +865,15 @@ function App() {
                                 <div className="era-row china-eras visible" style={{ minHeight: '20px' }}>
                                     <div className="era-label">China</div>
                                     <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
-                                        {chinaEras.map(e => (
-                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                        ))}
+                                    </div>
+                                    <div className="era-timeline-container">
+                                        {chinaEras.map(e => {
+                                            const left = getPos(e.start);
+                                            const right = getPos(e.end);
+                                            const width = right - left;
+                                            if (left >= 100 || right <= 0) return null;
+                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                        })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
                                         {visibleEraDots.map(e => (
@@ -904,9 +915,15 @@ function App() {
                                 <div className="era-row usa-eras visible" style={{ minHeight: '20px' }}>
                                     <div className="era-label">USA</div>
                                     <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
-                                        {usaEras.map(e => (
-                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                        ))}
+                                    </div>
+                                    <div className="era-timeline-container">
+                                        {usaEras.map(e => {
+                                            const left = getPos(e.start);
+                                            const right = getPos(e.end);
+                                            const width = right - left;
+                                            if (left >= 100 || right <= 0) return null;
+                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                        })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
                                         {visibleEraDots.map(e => (
@@ -948,9 +965,15 @@ function App() {
                                 <div className="era-row uk-eras visible" style={{ minHeight: '20px' }}>
                                     <div className="era-label">UK</div>
                                     <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
-                                        {ukEras.map(e => (
-                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                        ))}
+                                    </div>
+                                    <div className="era-timeline-container">
+                                        {ukEras.map(e => {
+                                            const left = getPos(e.start);
+                                            const right = getPos(e.end);
+                                            const width = right - left;
+                                            if (left >= 100 || right <= 0) return null;
+                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                        })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
                                         {visibleEraDots.map(e => (
@@ -992,9 +1015,15 @@ function App() {
                                 <div className="era-row france-eras visible" style={{ minHeight: '20px' }}>
                                     <div className="era-label">France</div>
                                     <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
-                                        {franceEras.map(e => (
-                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                        ))}
+                                    </div>
+                                    <div className="era-timeline-container">
+                                        {franceEras.map(e => {
+                                            const left = getPos(e.start);
+                                            const right = getPos(e.end);
+                                            const width = right - left;
+                                            if (left >= 100 || right <= 0) return null;
+                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                        })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
                                         {visibleEraDots.map(e => (
@@ -1036,9 +1065,15 @@ function App() {
                                 <div className="era-row germany-eras visible" style={{ minHeight: '20px' }}>
                                     <div className="era-label">Germany</div>
                                     <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
-                                        {germanyEras.map(e => (
-                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                        ))}
+                                    </div>
+                                    <div className="era-timeline-container">
+                                        {germanyEras.map(e => {
+                                            const left = getPos(e.start);
+                                            const right = getPos(e.end);
+                                            const width = right - left;
+                                            if (left >= 100 || right <= 0) return null;
+                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                        })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
                                         {visibleEraDots.map(e => (
@@ -1073,9 +1108,21 @@ function App() {
                         <div className={`era-row world-eras ${showWorldEras ? 'visible' : ''}`}>
                             <div className="era-label">World</div>
                             <div className="era-name-display">
-                                {worldEras.map(e => (
-                                    <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                ))}
+                            </div>
+                            <div className="era-timeline-container">
+                                {WORLD_ERAS.map(e => {
+                                    const eraMin = currentEraData.min;
+                                    const eraMax = currentEraData.max;
+                                    const eraRange = eraMax - eraMin;
+                                    const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+
+                                    const left = getPos(e.start);
+                                    const right = getPos(e.end);
+                                    const width = right - left;
+                                    if (left >= 100 || right <= 0 || width <= 0) return null;
+
+                                    return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                })}
                             </div>
                         </div>
                     </div>

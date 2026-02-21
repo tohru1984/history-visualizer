@@ -422,31 +422,50 @@ footer {
 }
 
 .era-label {
-    width: 80px; /* Increase fixed width slightly for longer labels */
+    width: 80px;
+    /* Increase fixed width slightly for longer labels */
     font-size: 0.6rem;
     font-weight: 800;
     color: #444;
     text-transform: uppercase;
     letter-spacing: 1px;
-    flex-shrink: 0; /* Prevent label from shrinking so the track starts consistently */
+    flex-shrink: 0;
+    /* Prevent label from shrinking so the track starts consistently */
 }
 
 .era-name-display {
-    width: 60px; /* Fixed width to make the label column consistent across all rows */
-    display: flex;
-    flex-direction: column; /* Stack tags vertically to save horizontal space while keeping fixed width */
-    gap: 0.2rem;
-    overflow: hidden;
-    margin-right: 1rem; /* Spacing before the timeline track starts */
+    width: 60px;
+    /* Fixed width for layout consistency */
+    flex-shrink: 0;
+    margin-right: 1rem;
+}
+
+.era-timeline-container {
+    flex: 1;
+    position: relative;
+    height: 24px;
+    margin-bottom: 0px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
 }
 
 .era-tag {
-    font-size: 0.8rem;
+    position: absolute;
+    height: 20px;
+    top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
     font-weight: 700;
-    padding: 4px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .controls {
