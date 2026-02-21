@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { humanEvents, HumanEvent } from './data/history/index'
 import { migrationPaths } from './data/migrations'
 import { iceSheetGeoJSON, exposedLandGeoJSON } from './data/paleo'
-import { JAPAN_ERAS, WORLD_ERAS, CHINA_ERAS, USA_ERAS, UK_ERAS, FRANCE_ERAS, GERMANY_ERAS } from './data/eras'
+import { HistoricalEra, JAPAN_ERAS, WORLD_ERAS, CHINA_ERAS, USA_ERAS, UK_ERAS, FRANCE_ERAS, GERMANY_ERAS } from './data/eras'
 import { getLifeExpectancy } from './data/lifeExpectancy'
 import { getPopulation, formatPopulation } from './data/population'
 import { getTemperature } from './data/temperature'
@@ -396,6 +396,30 @@ function App() {
         } else if (document.fullscreenElement) {
             document.exitFullscreen();
         }
+    };
+
+    const handleEraClick = (e: HistoricalEra, countryNameJa: string, countryNameEn: string, lon: number, lat: number, zoom: number) => {
+        setYear(e.start);
+        const prefixJa = countryNameJa === '世界' ? '世界の' : `${countryNameJa}の`;
+        const prefixEn = countryNameEn === 'World' ? 'Global ' : `The ${e.name} of ${countryNameEn} `;
+
+        const syntheticEvent: HumanEvent = {
+            id: `era-${e.id}`,
+            name: e.name,
+            name_ja: `${e.name} 開始`,
+            name_en: `${e.name} Begins`,
+            year: e.start,
+            year_end: e.end,
+            lat: lat,
+            lon: lon,
+            type: 'era',
+            description: '',
+            description_ja: `${prefixJa}「${e.name}」が始まりました。\n（期間: ${formatYear(e.start, 'ja')} 〜 ${formatYear(e.end, 'ja')}）`,
+            description_en: `${prefixEn}begins.\n(Period: ${formatYear(e.start, 'en')} - ${formatYear(e.end, 'en')})`,
+            importance: 5
+        };
+        setSelectedEvent(syntheticEvent);
+        if (map.current) map.current.flyTo({ center: [lon, lat], zoom: zoom });
     };
 
     const japanEras = JAPAN_ERAS.filter(e => year >= e.start && year < e.end);
@@ -822,7 +846,7 @@ function App() {
                                             const right = getPos(e.end);
                                             const width = right - left;
                                             if (left >= 100 || right <= 0) return null;
-                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                            return <div key={e.id} className="era-tag clickable-era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%`, cursor: 'pointer' }} onClick={() => handleEraClick(e, '日本', 'Japan', 138, 36, 5)}>{e.name}</div>
                                         })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
@@ -837,16 +861,7 @@ function App() {
                                                     width: '7px', height: '7px'
                                                 }}
                                                 title={`${e.name} (${formatYear(e.start, language)})`}
-                                                onClick={() => {
-                                                    setYear(e.start);
-                                                    const jpEvents = humanEvents.filter(ev => ev.lon >= 128 && ev.lon <= 146 && ev.lat >= 30 && ev.lat <= 46);
-                                                    const pool = jpEvents.length > 0 ? jpEvents : humanEvents;
-                                                    const matchEvent = pool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, pool[0]);
-                                                    if (matchEvent) {
-                                                        setSelectedEvent(matchEvent);
-                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
-                                                    }
-                                                }}
+                                                onClick={() => handleEraClick(e, '日本', 'Japan', 138, 36, 5)}
                                             />
                                         ))}
                                         <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
@@ -872,7 +887,7 @@ function App() {
                                             const right = getPos(e.end);
                                             const width = right - left;
                                             if (left >= 100 || right <= 0) return null;
-                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                            return <div key={e.id} className="era-tag clickable-era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%`, cursor: 'pointer' }} onClick={() => handleEraClick(e, '中国', 'China', 104, 35, 4)}>{e.name}</div>
                                         })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
@@ -887,16 +902,7 @@ function App() {
                                                     width: '7px', height: '7px'
                                                 }}
                                                 title={`${e.name} (${formatYear(e.start, language)})`}
-                                                onClick={() => {
-                                                    setYear(e.start);
-                                                    const cnEvents = humanEvents.filter(ev => ev.lon >= 75 && ev.lon <= 135 && ev.lat >= 18 && ev.lat <= 50);
-                                                    const pool = cnEvents.length > 0 ? cnEvents : humanEvents;
-                                                    const matchEvent = pool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, pool[0]);
-                                                    if (matchEvent) {
-                                                        setSelectedEvent(matchEvent);
-                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
-                                                    }
-                                                }}
+                                                onClick={() => handleEraClick(e, '中国', 'China', 104, 35, 4)}
                                             />
                                         ))}
                                         <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
@@ -922,7 +928,7 @@ function App() {
                                             const right = getPos(e.end);
                                             const width = right - left;
                                             if (left >= 100 || right <= 0) return null;
-                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                            return <div key={e.id} className="era-tag clickable-era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%`, cursor: 'pointer' }} onClick={() => handleEraClick(e, 'アメリカ', 'USA', -97, 38, 4)}>{e.name}</div>
                                         })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
@@ -937,16 +943,7 @@ function App() {
                                                     width: '7px', height: '7px'
                                                 }}
                                                 title={`${e.name} (${formatYear(e.start, language)})`}
-                                                onClick={() => {
-                                                    setYear(e.start);
-                                                    const pool = humanEvents.filter(ev => ev.lon >= -125 && ev.lon <= -65 && ev.lat >= 25 && ev.lat <= 50);
-                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
-                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
-                                                    if (matchEvent) {
-                                                        setSelectedEvent(matchEvent);
-                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 4 });
-                                                    }
-                                                }}
+                                                onClick={() => handleEraClick(e, 'アメリカ', 'USA', -97, 38, 4)}
                                             />
                                         ))}
                                         <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
@@ -972,7 +969,7 @@ function App() {
                                             const right = getPos(e.end);
                                             const width = right - left;
                                             if (left >= 100 || right <= 0) return null;
-                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                            return <div key={e.id} className="era-tag clickable-era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%`, cursor: 'pointer' }} onClick={() => handleEraClick(e, 'イギリス', 'UK', -2, 54, 5)}>{e.name}</div>
                                         })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
@@ -987,16 +984,7 @@ function App() {
                                                     width: '7px', height: '7px'
                                                 }}
                                                 title={`${e.name} (${formatYear(e.start, language)})`}
-                                                onClick={() => {
-                                                    setYear(e.start);
-                                                    const pool = humanEvents.filter(ev => ev.lon >= -10 && ev.lon <= 2 && ev.lat >= 50 && ev.lat <= 60);
-                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
-                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
-                                                    if (matchEvent) {
-                                                        setSelectedEvent(matchEvent);
-                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
-                                                    }
-                                                }}
+                                                onClick={() => handleEraClick(e, 'イギリス', 'UK', -2, 54, 5)}
                                             />
                                         ))}
                                         <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
@@ -1022,7 +1010,7 @@ function App() {
                                             const right = getPos(e.end);
                                             const width = right - left;
                                             if (left >= 100 || right <= 0) return null;
-                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                            return <div key={e.id} className="era-tag clickable-era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%`, cursor: 'pointer' }} onClick={() => handleEraClick(e, 'フランス', 'France', 2, 46, 5)}>{e.name}</div>
                                         })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
@@ -1037,16 +1025,7 @@ function App() {
                                                     width: '7px', height: '7px'
                                                 }}
                                                 title={`${e.name} (${formatYear(e.start, language)})`}
-                                                onClick={() => {
-                                                    setYear(e.start);
-                                                    const pool = humanEvents.filter(ev => ev.lon >= -5 && ev.lon <= 10 && ev.lat >= 42 && ev.lat <= 51);
-                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
-                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
-                                                    if (matchEvent) {
-                                                        setSelectedEvent(matchEvent);
-                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
-                                                    }
-                                                }}
+                                                onClick={() => handleEraClick(e, 'フランス', 'France', 2, 46, 5)}
                                             />
                                         ))}
                                         <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
@@ -1072,7 +1051,7 @@ function App() {
                                             const right = getPos(e.end);
                                             const width = right - left;
                                             if (left >= 100 || right <= 0) return null;
-                                            return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                            return <div key={e.id} className="era-tag clickable-era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%`, cursor: 'pointer' }} onClick={() => handleEraClick(e, 'ドイツ', 'Germany', 10, 51, 5)}>{e.name}</div>
                                         })}
                                     </div>
                                     <div className="timeline-marker-track" style={{ flex: 1 }}>
@@ -1087,16 +1066,7 @@ function App() {
                                                     width: '7px', height: '7px'
                                                 }}
                                                 title={`${e.name} (${formatYear(e.start, language)})`}
-                                                onClick={() => {
-                                                    setYear(e.start);
-                                                    const pool = humanEvents.filter(ev => ev.lon >= 5 && ev.lon <= 15 && ev.lat >= 47 && ev.lat <= 55);
-                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
-                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
-                                                    if (matchEvent) {
-                                                        setSelectedEvent(matchEvent);
-                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
-                                                    }
-                                                }}
+                                                onClick={() => handleEraClick(e, 'ドイツ', 'Germany', 10, 51, 5)}
                                             />
                                         ))}
                                         <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
@@ -1121,7 +1091,7 @@ function App() {
                                     const width = right - left;
                                     if (left >= 100 || right <= 0 || width <= 0) return null;
 
-                                    return <div key={e.id} className="era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%` }}>{e.name}</div>
+                                    return <div key={e.id} className="era-tag clickable-era-tag" style={{ color: e.color, left: `${left}%`, width: `${width}%`, cursor: 'pointer' }} onClick={() => handleEraClick(e, '世界', 'World', 0, 20, 2)}>{e.name}</div>
                                 })}
                             </div>
                         </div>
