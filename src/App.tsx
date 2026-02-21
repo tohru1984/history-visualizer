@@ -1064,7 +1064,7 @@ function App() {
                                 .filter(e => e.year >= eraMin && e.year <= eraMax)
                                 .filter(e => (e.importance ?? 3) >= detailLevel);
 
-                            if (rowEvents.length === 0) return null;
+                            if (rowEvents.length === 0 && row.key !== 'ww2') return null;
 
                             return (
                                 <div key={row.key} className="era-row visible" style={{ minHeight: '18px' }}>
@@ -1072,6 +1072,21 @@ function App() {
                                         {language === 'ja' ? row.label : row.label_en}
                                     </div>
                                     <div className="timeline-marker-track">
+                                        {row.key === 'ww2' && (
+                                            <div
+                                                className="timeline-duration-bar"
+                                                style={{
+                                                    position: 'absolute',
+                                                    left: `${Math.max(0, getPos(1939))}%`,
+                                                    right: `${100 - Math.min(100, getPos(1945))}%`,
+                                                    top: '4px',
+                                                    bottom: '4px',
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                                    borderRadius: '2px',
+                                                    pointerEvents: 'none'
+                                                }}
+                                            />
+                                        )}
                                         {rowEvents.map(e => {
                                             const pos = getPos(e.year);
                                             return (

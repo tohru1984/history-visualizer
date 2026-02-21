@@ -209,10 +209,12 @@ export const countryEvents: HumanEvent[] = [
     },
     {
         id: 'uk_ww2_blitz', name: 'ロンドン大空襲', name_ja: 'ロンドン大空襲 (ブリッツ)', name_en: 'The Blitz',
-        year: 1940, year_end: 1941, lat: 51.5, lon: -0.1,
-        description: 'ドイツ空軍の爆撃にロンドン市民が耐え抜く。チャーチル「我々は海岸で戦う」。',
-        description_en: 'Londoners endured German bombing. Churchill: "We shall fight on the beaches."',
-        type: 'war', importance: 5
+        year: 1940.6, year_end: 1941.4,
+        lat: 51.5, lon: -0.1,
+        description: 'ドイツ軍による大規模な都市爆撃。市民が地下鉄に避難しながらも抗戦を続けた。',
+        description_en: 'A prolonged bombing campaign by the German Luftwaffe. Londoners took shelter in the Underground while resisting.',
+        type: 'ww2',
+        importance: 35
     },
     {
         id: 'uk_nhs', name: '国民保健サービス(NHS)創設', name_ja: 'NHS 創設', name_en: 'NHS Founded',
@@ -402,10 +404,12 @@ export const countryEvents: HumanEvent[] = [
     },
     {
         id: 'de_ww2_europe', name: '第二次世界大戦（欧州）', name_ja: '第二次世界大戦（欧州戦線）', name_en: 'WWII European Theater',
-        year: 1939, year_end: 1945, lat: 52.2, lon: 21.0,
-        description: '1939年ポーランド侵攻で開戦。ホロコースト。1945年ベルリン陥落。',
-        description_en: '1939: invasion of Poland. The Holocaust. 1945: fall of Berlin.',
-        type: 'war', importance: 5
+        year: 1939.67, year_end: 1945.3,
+        lat: 52.5, lon: 13.4,
+        description: 'ポーランド侵攻から始まり、ヨーロッパ全土を巻き込んだ未曾有の大戦。ホロコーストという悲劇も生んだ。',
+        description_en: 'Began with the invasion of Poland and engulfed all of Europe. Resulted in unprecedented destruction and the tragedy of the Holocaust.',
+        type: 'ww2',
+        importance: 5
     },
     {
         id: 'de_berlin_wall_up', name: 'ベルリンの壁建設', name_ja: 'ベルリンの壁建設', name_en: 'Berlin Wall Built',

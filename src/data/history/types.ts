@@ -10,7 +10,7 @@ export interface HumanEvent {
     description: string;
     description_en?: string;
     description_ja?: string;
-    type: 'evolution' | 'migration' | 'civilization' | 'modern' | 'war' | 'megafauna' | 'hominin';
+    type: 'evolution' | 'migration' | 'civilization' | 'modern' | 'ww2' | 'war' | 'megafauna' | 'hominin';
     importance?: number; // 1 to 5 (5 is most important)
     imageUrl?: string;
     sourceUrl?: string;
