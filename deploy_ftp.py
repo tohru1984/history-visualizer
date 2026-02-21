@@ -22,6 +22,18 @@ def ensure_dir(path):
 ensure_dir(REMOTE_BASE)
 ensure_dir(REMOTE_BASE + '/assets')
 
+# Clean old assets
+try:
+    old_files = ftp.nlst(REMOTE_BASE + '/assets')
+    for old in old_files:
+        try:
+            ftp.delete(old)
+            print(f'Deleted old: {old}')
+        except:
+            pass
+except:
+    pass
+
 for root, dirs, files in os.walk(LOCAL_DIR):
     for f in files:
         local_path = os.path.join(root, f)

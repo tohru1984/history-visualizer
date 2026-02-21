@@ -6,7 +6,7 @@ export interface HumanEvent {
     lat: number;
     lon: number;
     description: string;
-    type: 'evolution' | 'migration' | 'civilization' | 'modern' | 'war';
+    type: 'evolution' | 'migration' | 'civilization' | 'modern' | 'war' | 'megafauna' | 'hominin';
     imageUrl?: string;
     sourceUrl?: string;
 }

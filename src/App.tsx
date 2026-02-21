@@ -40,6 +40,8 @@ function App() {
     const [showPopulation, setShowPopulation] = useState(true)
     const [showTemperature, setShowTemperature] = useState(true)
     const [showWars, setShowWars] = useState(true)
+    const [showMegafauna, setShowMegafauna] = useState(true)
+    const [showHominins, setShowHominins] = useState(true)
     const [showAllPast, setShowAllPast] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState<HumanEvent | null>(null)
     const mapContainer = useRef<HTMLDivElement>(null)
@@ -105,11 +107,33 @@ function App() {
                 type: 'circle',
                 source: 'events',
                 paint: {
-                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 6, 12, 12],
+                    'circle-radius': [
+                        'match',
+                        ['get', 'type'],
+                        'megafauna', ['interpolate', ['linear'], ['zoom'], 1, 6, 12, 12],
+                        'hominin', ['interpolate', ['linear'], ['zoom'], 1, 15, 12, 35],
+                        ['interpolate', ['linear'], ['zoom'], 1, 6, 12, 12]
+                    ],
                     'circle-color': ['get', 'color'],
-                    'circle-stroke-width': 2,
+                    'circle-blur': [
+                        'match',
+                        ['get', 'type'],
+                        'hominin', 0.6,
+                        0
+                    ],
+                    'circle-stroke-width': [
+                        'match',
+                        ['get', 'type'],
+                        'hominin', 0,
+                        2
+                    ],
                     'circle-stroke-color': '#fff',
-                    'circle-opacity': 0.8
+                    'circle-opacity': [
+                        'match',
+                        ['get', 'type'],
+                        'hominin', 0.5,
+                        0.8
+                    ]
                 }
             });
 
@@ -153,8 +177,8 @@ function App() {
         (map.current.getSource('migrations') as maplibregl.GeoJSONSource).setData(mGeoJSON);
 
         const activeEvents = showAllPast
-            ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war'))
-            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + 1000000) && (showWars || e.type !== 'war'));
+            ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin'))
+            : humanEvents.filter((e: HumanEvent) => year >= e.year && (e.year_end ? year <= e.year_end : year <= e.year + 1000000) && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin'));
 
         const eGeoJSON: any = {
             type: 'FeatureCollection',
@@ -165,7 +189,8 @@ function App() {
                     name: e.name,
                     description: e.description,
                     year: e.year,
-                    color: e.type === 'war' ? '#ff4444' : '#ffcc00'
+                    type: e.type,
+                    color: e.type === 'war' ? '#ff4444' : e.type === 'megafauna' ? '#8b4513' : e.type === 'hominin' ? '#ff8800' : '#ffcc00'
                 }
             }))
         };
@@ -204,6 +229,37 @@ function App() {
     const population = getPopulation(year);
     const temperature = getTemperature(year);
 
+    const getActiveEffects = () => {
+        const effects = [];
+        // ボトルネック / 自然の脅威 (危機的状況)
+        if (year >= -75000 && year <= -71000) {
+            effects.push({ type: 'crisis', class: 'crisis-toba', title: '⚠️ BOTTLE NECK', desc: 'トバ火山超巨大噴火 / 人類絶滅の危機' });
+        }
+        if (year >= -26000 && year <= -19000) {
+            effects.push({ type: 'crisis', class: 'crisis-ice', title: '❄️ ICE AGE', desc: '最終氷期最盛期 (LGM) / 極寒の時代' });
+        }
+
+        // テクノロジー解放 (Technology Unlocks)
+        if (year >= -2600000 && year <= -2300000) {
+            effects.push({ type: 'tech', class: 'tech-stone', title: '🪨 技 術 解 放', desc: '打 製 石 器' });
+        }
+        if (year >= -1000000 && year <= -700000) {
+            effects.push({ type: 'tech', class: 'tech-fire', title: '🔥 技 術 解 放', desc: '火 の 支 配' });
+        }
+        if (year >= -12000 && year <= -8000) {
+            effects.push({ type: 'tech', class: 'tech-agri', title: '🌾 技 術 解 放', desc: '農 耕 と 牧 畜' });
+        }
+        if (year >= 1760 && year <= 1840) {
+            effects.push({ type: 'tech', class: 'tech-industry', title: '⚙️ 技 術 解 放', desc: '産 業 革 命' });
+        }
+        if (year >= 2022 && year <= 2040) {
+            effects.push({ type: 'tech', class: 'tech-ai', title: '🤖 技 術 解 放', desc: '生 成 AI の 勃 興' });
+        }
+        return effects;
+    };
+
+    const activeEffects = getActiveEffects();
+
     return (
         <div className="app-container">
             <header className="app-header">
@@ -230,6 +286,16 @@ function App() {
 
             <main>
                 <div className="map-view" ref={mapContainer} />
+
+                {/* 状態演出 (画面オーバーレイと文字) */}
+                {activeEffects.map((effect, index) => (
+                    <div key={index} className={`screen-overlay ${effect.class}`}>
+                        <div className={`effect-banner ${effect.type}`}>
+                            <div className="effect-title">{effect.title}</div>
+                            <div className="effect-desc">{effect.desc}</div>
+                        </div>
+                    </div>
+                ))}
 
                 {showLifeExp && (
                     <div className="status-badge life-exp-badge">
@@ -305,6 +371,16 @@ function App() {
                                 <span className="label">戦争・紛争を表示</span>
                             </label>
                             <label className="toggle-switch">
+                                <input type="checkbox" checked={showMegafauna} onChange={() => setShowMegafauna(!showMegafauna)} />
+                                <span className="slider"></span>
+                                <span className="label">巨大生物を表示</span>
+                            </label>
+                            <label className="toggle-switch">
+                                <input type="checkbox" checked={showHominins} onChange={() => setShowHominins(!showHominins)} />
+                                <span className="slider"></span>
+                                <span className="label">他の人類を表示</span>
+                            </label>
+                            <label className="toggle-switch">
                                 <input type="checkbox" checked={showAllPast} onChange={() => setShowAllPast(!showAllPast)} />
                                 <span className="slider"></span>
                                 <span className="label">過去マーカーを維持</span>
@@ -318,6 +394,8 @@ function App() {
                             {humanEvents
                                 .filter(e => year >= e.year && year <= (e.year_end || e.year + 1000000))
                                 .filter(e => showWars || e.type !== 'war')
+                                .filter(e => showMegafauna || e.type !== 'megafauna')
+                                .filter(e => showHominins || e.type !== 'hominin')
                                 .sort((a, b) => b.year - a.year)
                                 .map(e => (
                                     <div key={e.id} className="event-card" onClick={() => {

@@ -571,3 +571,105 @@ footer {
         transform: translateY(0);
     }
 }
+
+/* -------------------------------------------
+   Screen Overlays (Crisis & Tech Unlocks)
+------------------------------------------- */
+.screen-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 50;
+    transition: background 1s ease-in-out, opacity 1s ease-in-out;
+}
+
+.crisis-toba {
+    background: radial-gradient(circle, transparent 20%, rgba(255, 50, 0, 0.25) 100%);
+    box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.4);
+    animation: flashDanger 2.5s infinite alternate;
+}
+
+.crisis-ice {
+    background: radial-gradient(circle, transparent 20%, rgba(150, 220, 255, 0.25) 100%);
+    box-shadow: inset 0 0 100px rgba(200, 240, 255, 0.4);
+}
+
+.effect-banner {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
+    z-index: 60;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1rem 3rem;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.effect-banner.crisis {
+    color: #ff4444;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+    border-color: rgba(255, 0, 0, 0.3);
+    animation: dropDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.effect-banner.tech {
+    color: #ffcc00;
+    text-shadow: 0 0 15px rgba(255, 200, 0, 0.8);
+    border-color: rgba(255, 200, 0, 0.3);
+    animation: riseUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.effect-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.effect-desc {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: 4px;
+}
+
+@keyframes flashDanger {
+    0% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes dropDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50px) scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}
+
+@keyframes riseUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 50px) scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}

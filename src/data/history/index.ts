@@ -8,11 +8,27 @@ import { warEvents } from './wars';
 
 export * from './types';
 
+import { megafaunaEvents } from './megafauna';
+import { homininEvents } from './hominins';
+
 export const humanEvents: HumanEvent[] = [
     ...evolutionEvents,
     ...earlySapiensEvents,
     ...greatJourneyEvents,
     ...civilizationEvents,
+    ...modernEvents,
     ...warEvents,
-    ...modernEvents
+    ...megafaunaEvents,
+    ...homininEvents
 ];
+
+export {
+    evolutionEvents,
+    earlySapiensEvents,
+    greatJourneyEvents,
+    civilizationEvents,
+    modernEvents,
+    warEvents,
+    megafaunaEvents,
+    homininEvents
+};
