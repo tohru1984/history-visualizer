@@ -5,6 +5,7 @@ import { greatJourneyEvents } from './greatJourney';
 import { civilizationEvents } from './civilization';
 import { modernEvents } from './modern';
 import { warEvents } from './wars';
+import { countryEvents } from './countries';
 
 export * from './types';
 
@@ -19,7 +20,8 @@ export const humanEvents: HumanEvent[] = [
     ...modernEvents,
     ...warEvents,
     ...megafaunaEvents,
-    ...homininEvents
+    ...homininEvents,
+    ...countryEvents
 ];
 
 export {
@@ -30,5 +32,6 @@ export {
     modernEvents,
     warEvents,
     megafaunaEvents,
-    homininEvents
+    homininEvents,
+    countryEvents
 };

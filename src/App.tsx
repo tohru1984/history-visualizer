@@ -4,29 +4,39 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { humanEvents, HumanEvent } from './data/history/index'
 import { migrationPaths } from './data/migrations'
 import { iceSheetGeoJSON, exposedLandGeoJSON } from './data/paleo'
-import { JAPAN_ERAS, WORLD_ERAS, CHINA_ERAS } from './data/eras'
+import { JAPAN_ERAS, WORLD_ERAS, CHINA_ERAS, USA_ERAS, UK_ERAS, FRANCE_ERAS, GERMANY_ERAS } from './data/eras'
 import { getLifeExpectancy } from './data/lifeExpectancy'
 import { getPopulation, formatPopulation } from './data/population'
 import { getTemperature } from './data/temperature'
+import { WW2_FACTIONS, WW2_MOVEMENTS } from './data/wars/ww2'
 import './App.css'
 
 const ERAS = [
-    { id: 'evolution', name: '人類の起源', min: -10000000, max: -300000, step: 10000, color: '#ff4444' },
-    { id: 'early_sapiens', name: '出アフリカの胎動', min: -300000, max: -70000, step: 1000, color: '#ffaa00' },
-    { id: 'great_journey', name: 'グレート・ジャーニー', min: -70000, max: -10000, step: 200, color: '#44ff44' },
-    { id: 'civilization', name: '文明の興亡', min: -10000, max: 1868, step: 1, color: '#00d4ff' },
-    { id: 'modern', name: '近現代', min: 1868, max: 2026, step: 0.1, color: '#ff00ff' }
+    { id: 'evolution', name: '人類の起源', name_en: 'Evolution', min: -10000000, max: -300000, step: 10000, color: '#ff4444' },
+    { id: 'early_sapiens', name: '出アフリカの胎動', name_en: 'Early Sapiens', min: -300000, max: -70000, step: 1000, color: '#ffaa00' },
+    { id: 'great_journey', name: 'グレート・ジャーニー', name_en: 'Great Journey', min: -70000, max: -10000, step: 200, color: '#44ff44' },
+    { id: 'civilization', name: '文明の興亡', name_en: 'Civilizations', min: -10000, max: 1868, step: 1, color: '#00d4ff' },
+    { id: 'modern', name: '近現代', name_en: 'Modern Era', min: 1868, max: 2026, step: 0.1, color: '#ff00ff' }
 ];
 
-function formatYear(year: number): string {
-    if (year < 0) return `${Math.abs(Math.floor(year)).toLocaleString()} BCE`;
+function formatYear(year: number, lang: 'ja' | 'en' = 'ja'): string {
+    const isBCE = year < 0;
+    const absYear = Math.abs(Math.floor(year));
+
+    if (isBCE) {
+        return lang === 'ja' ? `紀元前 ${absYear.toLocaleString()} 年` : `${absYear.toLocaleString()} BCE`;
+    }
+
     if (year >= 1868) {
         const y = Math.floor(year);
         const m = Math.floor((year - y) * 12) + 1;
         const d = Math.floor((((year - y) * 12) % 1) * 30) + 1;
-        return `${y}年 ${m}月 ${d}日`;
+        return lang === 'ja'
+            ? `${y}年 ${m}月 ${d}日`
+            : `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
     }
-    return `${Math.floor(year)} CE`;
+
+    return lang === 'ja' ? `西暦 ${absYear.toLocaleString()} 年` : `${absYear.toLocaleString()} CE`;
 }
 
 function App() {
@@ -35,6 +45,10 @@ function App() {
     const [showPaleo, setShowPaleo] = useState(true)
     const [showJapanEras, setShowJapanEras] = useState(true)
     const [showChinaEras, setShowChinaEras] = useState(true)
+    const [showUSAEras, setShowUSAEras] = useState(false)
+    const [showUKEras, setShowUKEras] = useState(false)
+    const [showFranceEras, setShowFranceEras] = useState(false)
+    const [showGermanyEras, setShowGermanyEras] = useState(false)
     const [showWorldEras, setShowWorldEras] = useState(true)
     const [showLifeExp, setShowLifeExp] = useState(true)
     const [showPopulation, setShowPopulation] = useState(true)
@@ -43,10 +57,49 @@ function App() {
     const [showMegafauna, setShowMegafauna] = useState(true)
     const [showHominins, setShowHominins] = useState(true)
     const [showAllPast, setShowAllPast] = useState(false)
+    const [showMigrationRoutes, setShowMigrationRoutes] = useState(true)
+    const [showEvolution, setShowEvolution] = useState(true)
+    const [showCivilization, setShowCivilization] = useState(true)
+    const [showMigration, setShowMigration] = useState(true)
+    const [showModern, setShowModern] = useState(true)
+    const [showWW2, setShowWW2] = useState(false)
     const [detailLevel, setDetailLevel] = useState<number>(3) // 1: Detail, 3: Normal, 5: Major
+    const [language, setLanguage] = useState<'ja' | 'en'>('ja')
     const [selectedEvent, setSelectedEvent] = useState<HumanEvent | null>(null)
     const mapContainer = useRef<HTMLDivElement>(null)
     const map = useRef<maplibregl.Map | null>(null)
+
+    // Dispatch language change to index.html i18n
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('language-change', { detail: { language } }));
+    }, [language]);
+
+    // Toggle migration route layers visibility on map
+    useEffect(() => {
+        if (!map.current || !map.current.isStyleLoaded()) return;
+        const vis = showMigrationRoutes ? 'visible' : 'none';
+        ['migration-layer', 'migrations-arrows', 'migration-head-layer'].forEach(id => {
+            if (map.current!.getLayer(id)) map.current!.setLayoutProperty(id, 'visibility', vis);
+        });
+    }, [showMigrationRoutes]);
+
+    // Auto-disable features when detailLevel hides their toggles
+    useEffect(() => {
+        if (detailLevel > 3) {
+            // Major mode: hide Normal-level features
+            setShowJapanEras(false);
+            setShowLifeExp(false);
+            setShowTemperature(false);
+            setShowWars(false);
+        }
+        if (detailLevel > 1) {
+            // Major or Normal: hide All-level features
+            setShowChinaEras(false);
+            setShowMegafauna(false);
+            setShowHominins(false);
+            setShowAllPast(false);
+        }
+    }, [detailLevel]);
 
     const currentEraData = ERAS.find(e => e.id === activeEra) || ERAS[0];
 
@@ -98,65 +151,136 @@ function App() {
                 }
             });
 
+            // Add arrow symbols along the migration paths
+            map.current.addLayer({
+                id: 'migrations-arrows',
+                type: 'symbol',
+                source: 'migrations',
+                layout: {
+                    'symbol-placement': 'line',
+                    'text-field': '▶',
+                    'text-size': 14,
+                    'symbol-spacing': 50,
+                    'text-keep-upright': false
+                },
+                paint: {
+                    'text-color': '#ffcc00',
+                    'text-opacity': 0.8
+                }
+            });
+
+            // Add source and layer for the moving "head" of migration
+            map.current.addSource('migration-heads', {
+                type: 'geojson',
+                data: { type: 'FeatureCollection', features: [] }
+            });
+
+            map.current.addLayer({
+                id: 'migration-head-layer',
+                type: 'circle',
+                source: 'migration-heads',
+                paint: {
+                    'circle-radius': 5,
+                    'circle-color': '#fff',
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#ffcc00',
+                    'circle-opacity': 0.9
+                }
+            });
+
             map.current.addSource('events', {
                 type: 'geojson',
                 data: { type: 'FeatureCollection', features: [] }
             });
 
             map.current.addLayer({
-                id: 'event-layer',
+                id: 'event-layer-base',
                 type: 'circle',
                 source: 'events',
+                filter: ['!=', ['get', 'type'], 'hominin'],
                 paint: {
-                    'circle-radius': [
-                        '*',
-                        ['interpolate', ['linear'], ['zoom'], 1, 1, 12, 2],
-                        ['match', ['get', 'type'], 'hominin', 15, 6]
-                    ],
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 6, 12, 12],
                     'circle-color': ['get', 'color'],
-                    'circle-blur': [
-                        'match',
-                        ['get', 'type'],
-                        'hominin', 0.6,
-                        0
-                    ],
-                    'circle-stroke-width': [
-                        'match',
-                        ['get', 'type'],
-                        'hominin', 0,
-                        2
-                    ],
+                    'circle-blur': 0,
+                    'circle-stroke-width': 2,
                     'circle-stroke-color': '#fff',
-                    'circle-opacity': [
-                        'match',
-                        ['get', 'type'],
-                        'hominin', 0.5,
-                        0.8
-                    ]
+                    'circle-opacity': 0.8
                 }
             });
 
-            map.current.on('click', 'event-layer', (e) => {
-                if (!e.features || e.features.length === 0) return;
-                const props = e.features[0].properties;
-
-                new maplibregl.Popup({ closeButton: false, className: 'custom-popup' })
-                    .setLngLat(e.lngLat)
-                    .setHTML(`
-            <div class="popup-content">
-              <h3>${props.name}</h3>
-              <p><strong>年代:</strong> ${formatYear(props.year)}</p>
-              <p>${props.description}</p>
-            </div>
-          `)
-                    .addTo(map.current!);
+            map.current.addLayer({
+                id: 'event-layer-hominin',
+                type: 'circle',
+                source: 'events',
+                filter: ['==', ['get', 'type'], 'hominin'],
+                paint: {
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 15, 12, 35],
+                    'circle-color': ['get', 'color'],
+                    'circle-blur': 0.6,
+                    'circle-stroke-width': 0,
+                    'circle-opacity': 0.5
+                }
             });
 
-            map.current.on('mouseenter', 'event-layer', () => {
-                if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+            ['event-layer-base', 'event-layer-hominin'].forEach(layer => {
+                map.current!.on('click', layer, (e) => {
+                    if (!e.features || e.features.length === 0) return;
+                    const props = e.features[0].properties;
+
+                    new maplibregl.Popup({ closeButton: false, className: 'custom-popup' })
+                        .setLngLat(e.lngLat)
+                        .setHTML(`
+                <div class="popup-content">
+                  <h3>${language === 'ja' ? (props.name_ja || props.name) : (props.name_en || props.id || props.name)}</h3>
+                  <p><strong>${language === 'ja' ? '年代' : 'Year'}:</strong> ${formatYear(props.year, language)}</p>
+                  <p>${language === 'ja' ? (props.description_ja || props.description) : (props.description_en || props.description)}</p>
+                </div>
+              `)
+                        .addTo(map.current!);
+                });
+
+                map.current!.on('mouseenter', layer, () => {
+                    if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+                });
+                map.current!.on('mouseleave', layer, () => {
+                    if (map.current) map.current.getCanvas().style.cursor = '';
+                });
             });
-            map.current.on('mouseleave', 'event-layer', () => {
-                if (map.current) map.current.getCanvas().style.cursor = '';
+
+            // WWII Layers
+            map.current.addSource('ww2-factions', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+            map.current.addLayer({
+                id: 'ww2-factions-layer',
+                type: 'fill',
+                source: 'ww2-factions',
+                paint: {
+                    'fill-color': ['get', 'color'],
+                    'fill-opacity': 0.4
+                }
+            });
+
+            map.current.addSource('ww2-movements', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+            map.current.addLayer({
+                id: 'ww2-movements-layer',
+                type: 'line',
+                source: 'ww2-movements',
+                paint: {
+                    'line-color': '#ffcc00',
+                    'line-width': 2,
+                    'line-dasharray': [2, 1]
+                }
+            });
+            map.current.addLayer({
+                id: 'ww2-movements-arrows',
+                type: 'symbol',
+                source: 'ww2-movements',
+                layout: {
+                    'symbol-placement': 'line',
+                    'text-field': '▶',
+                    'text-size': 12,
+                    'symbol-spacing': 40
+                },
+                paint: { 'text-color': '#ffcc00' }
             });
         });
     }, []);
@@ -167,13 +291,68 @@ function App() {
         const visibleMigrations = migrationPaths.filter(path => year >= path.year_start);
         const mGeoJSON: any = {
             type: 'FeatureCollection',
-            features: visibleMigrations.map(path => ({
-                type: 'Feature',
-                geometry: { type: 'LineString', coordinates: path.coordinates },
-                properties: {}
-            }))
+            features: visibleMigrations.map(path => {
+                const progress = Math.min(1, (year - path.year_start) / (path.year_end - path.year_start));
+                const numNodes = path.coordinates.length;
+                const activeNodes = Math.max(2, Math.ceil(progress * numNodes));
+                const currentCoords = path.coordinates.slice(0, activeNodes);
+                const headIdx = Math.min(numNodes - 1, Math.floor(progress * (numNodes - 1)));
+                const nextIdx = Math.min(numNodes - 1, headIdx + 1);
+                const t = (progress * (numNodes - 1)) % 1;
+                const headPos = [
+                    path.coordinates[headIdx][0] + (path.coordinates[nextIdx][0] - path.coordinates[headIdx][0]) * t,
+                    path.coordinates[headIdx][1] + (path.coordinates[nextIdx][1] - path.coordinates[headIdx][1]) * t
+                ];
+                return {
+                    type: 'Feature',
+                    geometry: { type: 'LineString', coordinates: currentCoords },
+                    properties: { name: language === 'ja' ? path.name_ja : path.name_en, headPos: headPos }
+                };
+            })
         };
         (map.current.getSource('migrations') as maplibregl.GeoJSONSource).setData(mGeoJSON);
+
+        if (map.current.getSource('migration-heads')) {
+            const headGeoJSON: any = {
+                type: 'FeatureCollection',
+                features: visibleMigrations.map(path => {
+                    const progress = Math.min(1, (year - path.year_start) / (path.year_end - path.year_start));
+                    const numNodes = path.coordinates.length;
+                    const headIdx = Math.min(numNodes - 1, Math.floor(progress * (numNodes - 1)));
+                    const nextIdx = Math.min(numNodes - 1, headIdx + 1);
+                    const t = (progress * (numNodes - 1)) % 1;
+                    const headPos = [
+                        path.coordinates[headIdx][0] + (path.coordinates[nextIdx][0] - path.coordinates[headIdx][0]) * t,
+                        path.coordinates[headIdx][1] + (path.coordinates[nextIdx][1] - path.coordinates[headIdx][1]) * t
+                    ];
+                    return {
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: headPos },
+                        properties: { name: language === 'ja' ? path.name_ja : path.name_en }
+                    };
+                })
+            };
+            (map.current.getSource('migration-heads') as maplibregl.GeoJSONSource).setData(headGeoJSON);
+        }
+
+        // Update WWII Data
+        if (map.current.getSource('ww2-factions')) {
+            const isWW2Visible = showWW2 && year >= 1939 && year <= 1945;
+            if (isWW2Visible) {
+                (map.current.getSource('ww2-factions') as maplibregl.GeoJSONSource).setData(WW2_FACTIONS);
+                (map.current.getSource('ww2-movements') as maplibregl.GeoJSONSource).setData({
+                    type: 'FeatureCollection',
+                    features: WW2_MOVEMENTS.features.filter((f: any) => year >= f.properties.year)
+                });
+                map.current.setLayoutProperty('ww2-factions-layer', 'visibility', 'visible');
+                map.current.setLayoutProperty('ww2-movements-layer', 'visibility', 'visible');
+                map.current.setLayoutProperty('ww2-movements-arrows', 'visibility', 'visible');
+            } else {
+                map.current.setLayoutProperty('ww2-factions-layer', 'visibility', 'none');
+                map.current.setLayoutProperty('ww2-movements-layer', 'visibility', 'none');
+                map.current.setLayoutProperty('ww2-movements-arrows', 'visibility', 'none');
+            }
+        }
 
         const activeEvents = showAllPast
             ? humanEvents.filter((e: HumanEvent) => year >= e.year && (showWars || e.type !== 'war') && (showMegafauna || e.type !== 'megafauna') && (showHominins || e.type !== 'hominin') && ((e.importance ?? 3) >= detailLevel))
@@ -185,10 +364,9 @@ function App() {
                 type: 'Feature',
                 geometry: { type: 'Point', coordinates: [e.lon, e.lat] },
                 properties: {
-                    name: e.name,
-                    description: e.description,
-                    year: e.year,
-                    type: e.type,
+                    name: e.name, name_ja: e.name_ja, name_en: e.name_en,
+                    description: e.description, description_ja: e.description_ja, description_en: e.description_en,
+                    year: e.year, type: e.type,
                     color: e.type === 'war' ? '#ff4444' : e.type === 'megafauna' ? '#8b4513' : e.type === 'hominin' ? '#ff8800' : '#ffcc00'
                 }
             }))
@@ -199,8 +377,7 @@ function App() {
         const isShowingPaleo = showPaleo && isPaleoYear;
         map.current.setPaintProperty('exposed-land-layer', 'fill-opacity', isShowingPaleo ? 0.3 : 0);
         map.current.setPaintProperty('ice-sheet-layer', 'fill-opacity', isShowingPaleo ? 0.6 : 0);
-
-    }, [year, showPaleo, showAllPast]);
+    }, [year, showPaleo, showAllPast, showWW2, showWars, showMegafauna, showHominins, detailLevel, language, migrationPaths, humanEvents]);
 
     const handleEraChange = (eraId: string) => {
         const era = ERAS.find(e => e.id === eraId);
@@ -223,6 +400,10 @@ function App() {
 
     const japanEras = JAPAN_ERAS.filter(e => year >= e.start && year < e.end);
     const chinaEras = CHINA_ERAS.filter(e => year >= e.start && year < e.end);
+    const usaEras = USA_ERAS.filter(e => year >= e.start && year < e.end);
+    const ukEras = UK_ERAS.filter(e => year >= e.start && year < e.end);
+    const franceEras = FRANCE_ERAS.filter(e => year >= e.start && year < e.end);
+    const germanyEras = GERMANY_ERAS.filter(e => year >= e.start && year < e.end);
     const worldEras = WORLD_ERAS.filter(e => year >= e.start && year < e.end);
     const lifeExp = getLifeExpectancy(year);
     const population = getPopulation(year);
@@ -232,27 +413,55 @@ function App() {
         const effects = [];
         // ボトルネック / 自然の脅威 (危機的状況)
         if (year >= -75000 && year <= -71000) {
-            effects.push({ type: 'crisis', class: 'crisis-toba', title: '⚠️ BOTTLE NECK', desc: 'トバ火山超巨大噴火 / 人類絶滅の危機' });
+            effects.push({
+                type: 'crisis', class: 'crisis-toba',
+                title: language === 'ja' ? '⚠️ BOTTLE NECK' : '⚠️ BOTTLE NECK',
+                desc: language === 'ja' ? 'トバ火山超巨大噴火 / 人類絶滅の危機' : 'Toba Supervolcano / Near-Extinction Crisis'
+            });
         }
         if (year >= -26000 && year <= -19000) {
-            effects.push({ type: 'crisis', class: 'crisis-ice', title: '❄️ ICE AGE', desc: '最終氷期最盛期 (LGM) / 極寒の時代' });
+            effects.push({
+                type: 'crisis', class: 'crisis-ice',
+                title: language === 'ja' ? '❄️ ICE AGE' : '❄️ ICE AGE',
+                desc: language === 'ja' ? '最終氷期最盛期 (LGM) / 極寒の時代' : 'Last Glacial Maximum (LGM)'
+            });
         }
 
         // テクノロジー解放 (Technology Unlocks)
         if (year >= -2600000 && year <= -2300000) {
-            effects.push({ type: 'tech', class: 'tech-stone', title: '🪨 技 術 解 放', desc: '打 製 石 器' });
+            effects.push({
+                type: 'tech', class: 'tech-stone',
+                title: language === 'ja' ? '🪨 技 術 解 放' : '🪨 TECH UNLOCK',
+                desc: language === 'ja' ? '打 製 石 器' : 'Stone Tools'
+            });
         }
         if (year >= -1000000 && year <= -700000) {
-            effects.push({ type: 'tech', class: 'tech-fire', title: '🔥 技 術 解 放', desc: '火 の 支 配' });
+            effects.push({
+                type: 'tech', class: 'tech-fire',
+                title: language === 'ja' ? '🔥 技 術 解 放' : '🔥 TECH UNLOCK',
+                desc: language === 'ja' ? '火 の 支 配' : 'Control of Fire'
+            });
         }
         if (year >= -12000 && year <= -8000) {
-            effects.push({ type: 'tech', class: 'tech-agri', title: '🌾 技 術 解 放', desc: '農 耕 と 牧 畜' });
+            effects.push({
+                type: 'tech', class: 'tech-agri',
+                title: language === 'ja' ? '🌾 技 術 解 放' : '🌾 TECH UNLOCK',
+                desc: language === 'ja' ? '農 耕 と 牧 畜' : 'Agriculture & Livestock'
+            });
         }
         if (year >= 1760 && year <= 1840) {
-            effects.push({ type: 'tech', class: 'tech-industry', title: '⚙️ 技 術 解 放', desc: '産 業 革 命' });
+            effects.push({
+                type: 'tech', class: 'tech-industry',
+                title: language === 'ja' ? '⚙️ 技 術 解 放' : '⚙️ TECH UNLOCK',
+                desc: language === 'ja' ? '産 業 革 命' : 'Industrial Revolution'
+            });
         }
         if (year >= 2022 && year <= 2040) {
-            effects.push({ type: 'tech', class: 'tech-ai', title: '🤖 技 術 解 放', desc: '生 成 AI の 勃 興' });
+            effects.push({
+                type: 'tech', class: 'tech-ai',
+                title: language === 'ja' ? '🤖 技 術 解 放' : '🤖 TECH UNLOCK',
+                desc: language === 'ja' ? '生 成 AI の 勃 興' : 'Rise of Generative AI'
+            });
         }
         return effects;
     };
@@ -274,17 +483,22 @@ function App() {
                             onClick={() => handleEraChange(era.id)}
                             style={{ '--era-color': era.color } as any}
                         >
-                            {era.name}
+                            {language === 'ja' ? era.name : (era as any).name_en}
                         </button>
                     ))}
+
+                    <button className="era-tab" onClick={() => setLanguage(lang => lang === 'ja' ? 'en' : 'ja')} style={{ marginLeft: '1rem', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '1.5rem', fontWeight: 'bold' }}>
+                        🌐 {language === 'ja' ? 'EN' : 'JA'}
+                    </button>
+
                     <div className="detail-filter">
-                        <span>情報量:</span>
-                        <button className={`detail-btn ${detailLevel === 5 ? 'active' : ''}`} onClick={() => setDetailLevel(5)}>厳選</button>
-                        <button className={`detail-btn ${detailLevel === 3 ? 'active' : ''}`} onClick={() => setDetailLevel(3)}>標準</button>
-                        <button className={`detail-btn ${detailLevel === 1 ? 'active' : ''}`} onClick={() => setDetailLevel(1)}>詳細</button>
+                        <span>{language === 'ja' ? '情報量:' : 'Detail:'}</span>
+                        <button className={`detail-btn ${detailLevel === 5 ? 'active' : ''}`} onClick={() => setDetailLevel(5)}>{language === 'ja' ? '厳選' : 'Major'}</button>
+                        <button className={`detail-btn ${detailLevel === 3 ? 'active' : ''}`} onClick={() => setDetailLevel(3)}>{language === 'ja' ? '標準' : 'Normal'}</button>
+                        <button className={`detail-btn ${detailLevel === 1 ? 'active' : ''}`} onClick={() => setDetailLevel(1)}>{language === 'ja' ? '詳細' : 'All'}</button>
                     </div>
                     <button className="era-tab" onClick={toggleFullscreen} style={{ marginLeft: '1rem', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '1.5rem' }}>
-                        ⛶ 全画面
+                        ⛶ {language === 'ja' ? '全画面' : 'Fullscreen'}
                     </button>
                 </div>
             </header>
@@ -304,8 +518,8 @@ function App() {
 
                 {showLifeExp && (
                     <div className="status-badge life-exp-badge">
-                        <div className="badge-label">推定平均寿命</div>
-                        <div className="badge-value">{lifeExp} <span className="unit">歳</span></div>
+                        <div className="badge-label">{language === 'ja' ? '推定平均寿命' : 'Life Expectancy'}</div>
+                        <div className="badge-value">{lifeExp} <span className="unit">{language === 'ja' ? '歳' : 'yrs'}</span></div>
                     </div>
                 )}
 
@@ -313,12 +527,12 @@ function App() {
                     <div className="status-badge population-badge">
                         <div className="badge-group">
                             <div className="badge-item">
-                                <div className="badge-label">世界人口</div>
-                                <div className="badge-value">{formatPopulation(population.world)} <span className="unit">人</span></div>
+                                <div className="badge-label">{language === 'ja' ? '世界人口' : 'World Pop.'}</div>
+                                <div className="badge-value">{formatPopulation(population.world)} <span className="unit">{language === 'ja' ? '人' : ''}</span></div>
                             </div>
                             <div className="badge-item">
-                                <div className="badge-label">日本人口</div>
-                                <div className="badge-value">{formatPopulation(population.japan)} <span className="unit">人</span></div>
+                                <div className="badge-label">{language === 'ja' ? '日本人口' : 'Japan Pop.'}</div>
+                                <div className="badge-value">{formatPopulation(population.japan)} <span className="unit">{language === 'ja' ? '人' : ''}</span></div>
                             </div>
                         </div>
                     </div>
@@ -326,81 +540,162 @@ function App() {
 
                 {showTemperature && (
                     <div className="status-badge temperature-badge">
-                        <div className="badge-label">世界の平均気温</div>
+                        <div className="badge-label">{language === 'ja' ? '世界の平均気温' : 'Avg Temp'}</div>
                         <div className="badge-value">{temperature.toFixed(1)} <span className="unit">℃</span></div>
                     </div>
                 )}
 
                 <aside className="history-sidebar">
-                    <div className="sidebar-section">
-                        <h2>Visual Controls</h2>
-                        <div className="controls-grid">
-                            <label className="toggle-switch">
+                    <div className="sidebar-section scrollable" style={{ maxHeight: '40vh' }}>
+                        <h2>{language === 'ja' ? '表示設定' : 'Visual Controls'}</h2>
+                        <div className="controls-grid controls-compact">
+                            {/* Map Overlays */}
+                            <div className="controls-group-label">{language === 'ja' ? '地図表示' : 'Map'}</div>
+                            <label className="toggle-switch mini">
                                 <input type="checkbox" checked={showPaleo} onChange={() => setShowPaleo(!showPaleo)} />
                                 <span className="slider"></span>
-                                <span className="label">Paleo View (Ice/Land)</span>
+                                <span className="label">{language === 'ja' ? '古地理 (氷床)' : 'Paleo View'}</span>
                             </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showJapanEras} onChange={() => setShowJapanEras(!showJapanEras)} />
+                            <label className="toggle-switch mini">
+                                <input type="checkbox" checked={showMigrationRoutes} onChange={() => setShowMigrationRoutes(!showMigrationRoutes)} />
                                 <span className="slider"></span>
-                                <span className="label">Japan Era Labels</span>
+                                <span className="label">{language === 'ja' ? '移動ルート' : 'Migration Routes'}</span>
                             </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showChinaEras} onChange={() => setShowChinaEras(!showChinaEras)} />
-                                <span className="slider"></span>
-                                <span className="label">China Era Labels</span>
-                            </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showWorldEras} onChange={() => setShowWorldEras(!showWorldEras)} />
-                                <span className="slider"></span>
-                                <span className="label">World Era Labels</span>
-                            </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showLifeExp} onChange={() => setShowLifeExp(!showLifeExp)} />
-                                <span className="slider"></span>
-                                <span className="label">平均寿命を表示</span>
-                            </label>
-                            <label className="toggle-switch">
+
+                            {/* Statistics */}
+                            <div className="controls-group-label">{language === 'ja' ? '統計データ' : 'Stats'}</div>
+                            <label className="toggle-switch mini">
                                 <input type="checkbox" checked={showPopulation} onChange={() => setShowPopulation(!showPopulation)} />
                                 <span className="slider"></span>
-                                <span className="label">人口統計を表示</span>
+                                <span className="label">{language === 'ja' ? '人口' : 'Population'}</span>
                             </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showTemperature} onChange={() => setShowTemperature(!showTemperature)} />
+                            {detailLevel <= 3 && (
+                                <>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showLifeExp} onChange={() => setShowLifeExp(!showLifeExp)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? '平均寿命' : 'Life Exp.'}</span>
+                                    </label>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showTemperature} onChange={() => setShowTemperature(!showTemperature)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? '平均気温' : 'Temperature'}</span>
+                                    </label>
+                                </>
+                            )}
+
+                            {/* Era Labels */}
+                            <div className="controls-group-label">{language === 'ja' ? '時代区分' : 'Era Labels'}</div>
+                            <label className="toggle-switch mini">
+                                <input type="checkbox" checked={showWorldEras} onChange={() => setShowWorldEras(!showWorldEras)} />
                                 <span className="slider"></span>
-                                <span className="label">平均気温を表示</span>
+                                <span className="label">{language === 'ja' ? '世界' : 'World'}</span>
                             </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showWars} onChange={() => setShowWars(!showWars)} />
+                            {detailLevel <= 3 && (
+                                <label className="toggle-switch mini">
+                                    <input type="checkbox" checked={showJapanEras} onChange={() => setShowJapanEras(!showJapanEras)} />
+                                    <span className="slider"></span>
+                                    <span className="label">{language === 'ja' ? '日本' : 'Japan'}</span>
+                                </label>
+                            )}
+                            {detailLevel <= 1 && (
+                                <>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showChinaEras} onChange={() => setShowChinaEras(!showChinaEras)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? '中国' : 'China'}</span>
+                                    </label>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showUSAEras} onChange={() => setShowUSAEras(!showUSAEras)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? 'アメリカ' : 'USA'}</span>
+                                    </label>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showUKEras} onChange={() => setShowUKEras(!showUKEras)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? 'イギリス' : 'UK'}</span>
+                                    </label>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showFranceEras} onChange={() => setShowFranceEras(!showFranceEras)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? 'フランス' : 'France'}</span>
+                                    </label>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showGermanyEras} onChange={() => setShowGermanyEras(!showGermanyEras)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? 'ドイツ' : 'Germany'}</span>
+                                    </label>
+                                </>
+                            )}
+
+                            {/* Event Types */}
+                            <div className="controls-group-label">{language === 'ja' ? 'イベント種別' : 'Events'}</div>
+                            <label className="toggle-switch mini">
+                                <input type="checkbox" checked={showEvolution} onChange={() => setShowEvolution(!showEvolution)} />
                                 <span className="slider"></span>
-                                <span className="label">戦争・紛争を表示</span>
+                                <span className="label">{language === 'ja' ? '進化' : 'Evolution'}</span>
                             </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showMegafauna} onChange={() => setShowMegafauna(!showMegafauna)} />
+                            <label className="toggle-switch mini">
+                                <input type="checkbox" checked={showCivilization} onChange={() => setShowCivilization(!showCivilization)} />
                                 <span className="slider"></span>
-                                <span className="label">巨大生物を表示</span>
+                                <span className="label">{language === 'ja' ? '文明' : 'Civilization'}</span>
                             </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showHominins} onChange={() => setShowHominins(!showHominins)} />
+                            <label className="toggle-switch mini">
+                                <input type="checkbox" checked={showMigration} onChange={() => setShowMigration(!showMigration)} />
                                 <span className="slider"></span>
-                                <span className="label">他の人類を表示</span>
+                                <span className="label">{language === 'ja' ? '移動' : 'Migration'}</span>
                             </label>
-                            <label className="toggle-switch">
-                                <input type="checkbox" checked={showAllPast} onChange={() => setShowAllPast(!showAllPast)} />
+                            <label className="toggle-switch mini">
+                                <input type="checkbox" checked={showModern} onChange={() => setShowModern(!showModern)} />
                                 <span className="slider"></span>
-                                <span className="label">過去マーカーを維持</span>
+                                <span className="label">{language === 'ja' ? '近現代' : 'Modern'}</span>
                             </label>
+                            <label className="toggle-switch mini">
+                                <input type="checkbox" checked={showWW2} onChange={() => setShowWW2(!showWW2)} />
+                                <span className="slider"></span>
+                                <span className="label">{language === 'ja' ? '第二次世界大戦' : 'WWII'}</span>
+                            </label>
+                            {detailLevel <= 3 && (
+                                <label className="toggle-switch mini">
+                                    <input type="checkbox" checked={showWars} onChange={() => setShowWars(!showWars)} />
+                                    <span className="slider"></span>
+                                    <span className="label">{language === 'ja' ? '戦争' : 'Wars'}</span>
+                                </label>
+                            )}
+                            {detailLevel <= 1 && (
+                                <>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showMegafauna} onChange={() => setShowMegafauna(!showMegafauna)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? '巨大生物' : 'Megafauna'}</span>
+                                    </label>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showHominins} onChange={() => setShowHominins(!showHominins)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? '他の人類' : 'Hominins'}</span>
+                                    </label>
+                                    <label className="toggle-switch mini">
+                                        <input type="checkbox" checked={showAllPast} onChange={() => setShowAllPast(!showAllPast)} />
+                                        <span className="slider"></span>
+                                        <span className="label">{language === 'ja' ? '過去マーカー維持' : 'Keep Past'}</span>
+                                    </label>
+                                </>
+                            )}
                         </div>
                     </div>
 
                     <div className="sidebar-section scrollable">
-                        <h2>History Log</h2>
+                        <h2>{language === 'ja' ? 'イベント一覧' : 'History Log'}</h2>
                         <div className="event-list">
                             {humanEvents
                                 .filter(e => year >= e.year && year <= (e.year_end || e.year + 1000000))
                                 .filter(e => showWars || e.type !== 'war')
                                 .filter(e => showMegafauna || e.type !== 'megafauna')
                                 .filter(e => showHominins || e.type !== 'hominin')
+                                .filter(e => showEvolution || e.type !== 'evolution')
+                                .filter(e => showCivilization || e.type !== 'civilization')
+                                .filter(e => showMigration || e.type !== 'migration')
+                                .filter(e => showModern || e.type !== 'modern')
                                 .filter(e => ((e.importance ?? 3) >= detailLevel))
                                 .sort((a, b) => b.year - a.year)
                                 .map(e => (
@@ -408,9 +703,9 @@ function App() {
                                         setSelectedEvent(e);
                                         if (map.current) map.current.flyTo({ center: [e.lon, e.lat], zoom: 6 })
                                     }}>
-                                        <div className="event-year">{formatYear(e.year)}</div>
-                                        <div className="event-name">{e.name}</div>
-                                        <div className="event-desc">{e.description}</div>
+                                        <div className="event-year">{formatYear(e.year, language)}</div>
+                                        <div className="event-name">{language === 'ja' ? (e.name_ja || e.name) : (e.name_en || e.name)}</div>
+                                        <div className="event-desc">{language === 'ja' ? (e.description_ja || e.description) : (e.description_en || e.description)}</div>
                                     </div>
                                 ))}
                         </div>
@@ -428,13 +723,13 @@ function App() {
                             )}
                             <div className="modal-content">
                                 <div className="modal-era-tag">{selectedEvent.type.toUpperCase()}</div>
-                                <div className="modal-year">{formatYear(selectedEvent.year)}</div>
-                                <h2 className="modal-title">{selectedEvent.name}</h2>
-                                <p className="modal-description">{selectedEvent.description}</p>
+                                <div className="modal-year">{formatYear(selectedEvent.year, language)}</div>
+                                <h2 className="modal-title">{language === 'ja' ? (selectedEvent.name_ja || selectedEvent.name) : (selectedEvent.name_en || selectedEvent.name)}</h2>
+                                <p className="modal-description">{language === 'ja' ? (selectedEvent.description_ja || selectedEvent.description) : (selectedEvent.description_en || selectedEvent.description)}</p>
                                 {selectedEvent.sourceUrl && (
                                     <div className="modal-footer">
                                         <a href={selectedEvent.sourceUrl} target="_blank" rel="noopener noreferrer" className="source-button">
-                                            Wikipediaで詳しく見る ↗
+                                            {language === 'ja' ? 'Wikipediaで詳しく見る ↗' : 'Read more on Wikipedia ↗'}
                                         </a>
                                     </div>
                                 )}
@@ -445,24 +740,285 @@ function App() {
             </main>
 
             <footer>
+                {/* Update History Summary Overlay */}
+                <div className="update-summary-box">
+                    <div className="update-summary-header">
+                        <span>✨ Latest Updates</span>
+                        <a href="update_history.html" target="_blank" rel="noopener noreferrer">{language === 'ja' ? 'すべて見る' : 'See all'}</a>
+                    </div>
+                    <ul className="update-list-mini">
+                        <li>🌐 EN/JA Support</li>
+                        <li>🚶 Migration Routes (WP)</li>
+                    </ul>
+                </div>
+
                 <div className="timeline-container">
+                    {/* Era label rows with integrated marker tracks */}
                     <div className="era-overlays">
-                        <div className={`era-row japan-eras ${showJapanEras ? 'visible' : ''}`}>
-                            <div className="era-label">Japan</div>
-                            <div className="era-name-display">
-                                {japanEras.map(e => (
-                                    <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className={`era-row china-eras ${showChinaEras ? 'visible' : ''}`}>
-                            <div className="era-label">China</div>
-                            <div className="era-name-display">
-                                {chinaEras.map(e => (
-                                    <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
-                                ))}
-                            </div>
-                        </div>
+                        {showJapanEras && (() => {
+                            const eraMin = currentEraData.min;
+                            const eraMax = currentEraData.max;
+                            const eraRange = eraMax - eraMin;
+                            const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+                            const visibleEraDots = JAPAN_ERAS.filter(e => e.start >= eraMin && e.start <= eraMax);
+                            return (
+                                <div className="era-row japan-eras visible" style={{ minHeight: '20px' }}>
+                                    <div className="era-label">Japan</div>
+                                    <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
+                                        {japanEras.map(e => (
+                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
+                                        ))}
+                                    </div>
+                                    <div className="timeline-marker-track" style={{ flex: 1 }}>
+                                        {visibleEraDots.map(e => (
+                                            <div
+                                                key={e.id}
+                                                className="timeline-marker-dot"
+                                                style={{
+                                                    left: `${getPos(e.start)}%`,
+                                                    backgroundColor: e.color,
+                                                    borderColor: year >= e.start && year < e.end ? '#fff' : e.color,
+                                                    width: '7px', height: '7px'
+                                                }}
+                                                title={`${e.name} (${formatYear(e.start, language)})`}
+                                                onClick={() => {
+                                                    setYear(e.start);
+                                                    const jpEvents = humanEvents.filter(ev => ev.lon >= 128 && ev.lon <= 146 && ev.lat >= 30 && ev.lat <= 46);
+                                                    const pool = jpEvents.length > 0 ? jpEvents : humanEvents;
+                                                    const matchEvent = pool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, pool[0]);
+                                                    if (matchEvent) {
+                                                        setSelectedEvent(matchEvent);
+                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
+                                                    }
+                                                }}
+                                            />
+                                        ))}
+                                        <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {showChinaEras && (() => {
+                            const eraMin = currentEraData.min;
+                            const eraMax = currentEraData.max;
+                            const eraRange = eraMax - eraMin;
+                            const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+                            const visibleEraDots = CHINA_ERAS.filter(e => e.start >= eraMin && e.start <= eraMax);
+                            return (
+                                <div className="era-row china-eras visible" style={{ minHeight: '20px' }}>
+                                    <div className="era-label">China</div>
+                                    <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
+                                        {chinaEras.map(e => (
+                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
+                                        ))}
+                                    </div>
+                                    <div className="timeline-marker-track" style={{ flex: 1 }}>
+                                        {visibleEraDots.map(e => (
+                                            <div
+                                                key={e.id}
+                                                className="timeline-marker-dot"
+                                                style={{
+                                                    left: `${getPos(e.start)}%`,
+                                                    backgroundColor: e.color,
+                                                    borderColor: year >= e.start && year < e.end ? '#fff' : e.color,
+                                                    width: '7px', height: '7px'
+                                                }}
+                                                title={`${e.name} (${formatYear(e.start, language)})`}
+                                                onClick={() => {
+                                                    setYear(e.start);
+                                                    const cnEvents = humanEvents.filter(ev => ev.lon >= 75 && ev.lon <= 135 && ev.lat >= 18 && ev.lat <= 50);
+                                                    const pool = cnEvents.length > 0 ? cnEvents : humanEvents;
+                                                    const matchEvent = pool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, pool[0]);
+                                                    if (matchEvent) {
+                                                        setSelectedEvent(matchEvent);
+                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
+                                                    }
+                                                }}
+                                            />
+                                        ))}
+                                        <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {showUSAEras && (() => {
+                            const eraMin = currentEraData.min;
+                            const eraMax = currentEraData.max;
+                            const eraRange = eraMax - eraMin;
+                            const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+                            const visibleEraDots = USA_ERAS.filter(e => e.start >= eraMin && e.start <= eraMax);
+                            return (
+                                <div className="era-row usa-eras visible" style={{ minHeight: '20px' }}>
+                                    <div className="era-label">USA</div>
+                                    <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
+                                        {usaEras.map(e => (
+                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
+                                        ))}
+                                    </div>
+                                    <div className="timeline-marker-track" style={{ flex: 1 }}>
+                                        {visibleEraDots.map(e => (
+                                            <div
+                                                key={e.id}
+                                                className="timeline-marker-dot"
+                                                style={{
+                                                    left: `${getPos(e.start)}%`,
+                                                    backgroundColor: e.color,
+                                                    borderColor: year >= e.start && year < e.end ? '#fff' : e.color,
+                                                    width: '7px', height: '7px'
+                                                }}
+                                                title={`${e.name} (${formatYear(e.start, language)})`}
+                                                onClick={() => {
+                                                    setYear(e.start);
+                                                    const pool = humanEvents.filter(ev => ev.lon >= -125 && ev.lon <= -65 && ev.lat >= 25 && ev.lat <= 50);
+                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
+                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
+                                                    if (matchEvent) {
+                                                        setSelectedEvent(matchEvent);
+                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 4 });
+                                                    }
+                                                }}
+                                            />
+                                        ))}
+                                        <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {showUKEras && (() => {
+                            const eraMin = currentEraData.min;
+                            const eraMax = currentEraData.max;
+                            const eraRange = eraMax - eraMin;
+                            const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+                            const visibleEraDots = UK_ERAS.filter(e => e.start >= eraMin && e.start <= eraMax);
+                            return (
+                                <div className="era-row uk-eras visible" style={{ minHeight: '20px' }}>
+                                    <div className="era-label">UK</div>
+                                    <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
+                                        {ukEras.map(e => (
+                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
+                                        ))}
+                                    </div>
+                                    <div className="timeline-marker-track" style={{ flex: 1 }}>
+                                        {visibleEraDots.map(e => (
+                                            <div
+                                                key={e.id}
+                                                className="timeline-marker-dot"
+                                                style={{
+                                                    left: `${getPos(e.start)}%`,
+                                                    backgroundColor: e.color,
+                                                    borderColor: year >= e.start && year < e.end ? '#fff' : e.color,
+                                                    width: '7px', height: '7px'
+                                                }}
+                                                title={`${e.name} (${formatYear(e.start, language)})`}
+                                                onClick={() => {
+                                                    setYear(e.start);
+                                                    const pool = humanEvents.filter(ev => ev.lon >= -10 && ev.lon <= 2 && ev.lat >= 50 && ev.lat <= 60);
+                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
+                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
+                                                    if (matchEvent) {
+                                                        setSelectedEvent(matchEvent);
+                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
+                                                    }
+                                                }}
+                                            />
+                                        ))}
+                                        <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {showFranceEras && (() => {
+                            const eraMin = currentEraData.min;
+                            const eraMax = currentEraData.max;
+                            const eraRange = eraMax - eraMin;
+                            const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+                            const visibleEraDots = FRANCE_ERAS.filter(e => e.start >= eraMin && e.start <= eraMax);
+                            return (
+                                <div className="era-row france-eras visible" style={{ minHeight: '20px' }}>
+                                    <div className="era-label">France</div>
+                                    <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
+                                        {franceEras.map(e => (
+                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
+                                        ))}
+                                    </div>
+                                    <div className="timeline-marker-track" style={{ flex: 1 }}>
+                                        {visibleEraDots.map(e => (
+                                            <div
+                                                key={e.id}
+                                                className="timeline-marker-dot"
+                                                style={{
+                                                    left: `${getPos(e.start)}%`,
+                                                    backgroundColor: e.color,
+                                                    borderColor: year >= e.start && year < e.end ? '#fff' : e.color,
+                                                    width: '7px', height: '7px'
+                                                }}
+                                                title={`${e.name} (${formatYear(e.start, language)})`}
+                                                onClick={() => {
+                                                    setYear(e.start);
+                                                    const pool = humanEvents.filter(ev => ev.lon >= -5 && ev.lon <= 10 && ev.lat >= 42 && ev.lat <= 51);
+                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
+                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
+                                                    if (matchEvent) {
+                                                        setSelectedEvent(matchEvent);
+                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
+                                                    }
+                                                }}
+                                            />
+                                        ))}
+                                        <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {showGermanyEras && (() => {
+                            const eraMin = currentEraData.min;
+                            const eraMax = currentEraData.max;
+                            const eraRange = eraMax - eraMin;
+                            const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+                            const visibleEraDots = GERMANY_ERAS.filter(e => e.start >= eraMin && e.start <= eraMax);
+                            return (
+                                <div className="era-row germany-eras visible" style={{ minHeight: '20px' }}>
+                                    <div className="era-label">Germany</div>
+                                    <div className="era-name-display" style={{ minWidth: '60px', maxWidth: '100px' }}>
+                                        {germanyEras.map(e => (
+                                            <div key={e.id} className="era-tag" style={{ color: e.color }}>{e.name}</div>
+                                        ))}
+                                    </div>
+                                    <div className="timeline-marker-track" style={{ flex: 1 }}>
+                                        {visibleEraDots.map(e => (
+                                            <div
+                                                key={e.id}
+                                                className="timeline-marker-dot"
+                                                style={{
+                                                    left: `${getPos(e.start)}%`,
+                                                    backgroundColor: e.color,
+                                                    borderColor: year >= e.start && year < e.end ? '#fff' : e.color,
+                                                    width: '7px', height: '7px'
+                                                }}
+                                                title={`${e.name} (${formatYear(e.start, language)})`}
+                                                onClick={() => {
+                                                    setYear(e.start);
+                                                    const pool = humanEvents.filter(ev => ev.lon >= 5 && ev.lon <= 15 && ev.lat >= 47 && ev.lat <= 55);
+                                                    const actualPool = pool.length > 0 ? pool : humanEvents;
+                                                    const matchEvent = actualPool.reduce((best, ev) => Math.abs(ev.year - e.start) < Math.abs(best.year - e.start) ? ev : best, actualPool[0]);
+                                                    if (matchEvent) {
+                                                        setSelectedEvent(matchEvent);
+                                                        if (map.current) map.current.flyTo({ center: [matchEvent.lon, matchEvent.lat], zoom: 6 });
+                                                    }
+                                                }}
+                                            />
+                                        ))}
+                                        <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                         <div className={`era-row world-eras ${showWorldEras ? 'visible' : ''}`}>
                             <div className="era-label">World</div>
                             <div className="era-name-display">
@@ -473,9 +1029,109 @@ function App() {
                         </div>
                     </div>
 
+                    {/* Event marker rows */}
+                    {(() => {
+                        const eraMin = currentEraData.min;
+                        const eraMax = currentEraData.max;
+                        const eraRange = eraMax - eraMin;
+                        const getPos = (y: number) => Math.max(0, Math.min(100, ((y - eraMin) / eraRange) * 100));
+
+                        // Define which event categories to show as timeline rows
+                        const eventRows: { key: string; label: string; label_en: string; types: string[]; color: string; show: boolean }[] = [
+                            { key: 'evolution', label: '進化', label_en: 'Evolution', types: ['evolution'], color: '#ff4444', show: showEvolution || activeEra === 'evolution' },
+                            { key: 'civilization', label: '文明', label_en: 'Civilization', types: ['civilization'], color: '#00d4ff', show: showCivilization },
+                            { key: 'migration', label: '移動', label_en: 'Migration', types: ['migration'], color: '#44ff44', show: showMigration || activeEra === 'evolution' },
+                            { key: 'modern', label: '近現代', label_en: 'Modern', types: ['modern'], color: '#ff00ff', show: showModern },
+                            { key: 'ww2', label: 'WWII', label_en: 'WWII', types: ['ww2'], color: '#ffffff', show: showWW2 },
+                            { key: 'war', label: '戦争', label_en: 'Wars', types: ['war'], color: '#ff4444', show: showWars },
+                            { key: 'megafauna', label: '巨大生物', label_en: 'Megafauna', types: ['megafauna'], color: '#8b4513', show: showMegafauna },
+                            { key: 'hominin', label: '人類種', label_en: 'Hominins', types: ['hominin'], color: '#ff8800', show: showHominins },
+                        ];
+
+                        // Also add migration paths as timeline dots
+                        const migrationDots = migrationPaths
+                            .filter(p => p.year_start >= eraMin && p.year_start <= eraMax)
+                            .map(p => ({
+                                id: p.id,
+                                year: p.year_start,
+                                name: language === 'ja' ? (p.name_ja || p.name) : (p.name_en || p.name),
+                                pos: getPos(p.year_start)
+                            }));
+
+                        const eventElements = eventRows.filter(row => row.show).map(row => {
+                            const rowEvents = humanEvents
+                                .filter(e => row.types.includes(e.type))
+                                .filter(e => e.year >= eraMin && e.year <= eraMax)
+                                .filter(e => (e.importance ?? 3) >= detailLevel);
+
+                            if (rowEvents.length === 0) return null;
+
+                            return (
+                                <div key={row.key} className="era-row visible" style={{ minHeight: '18px' }}>
+                                    <div className="era-label" style={{ color: row.color }}>
+                                        {language === 'ja' ? row.label : row.label_en}
+                                    </div>
+                                    <div className="timeline-marker-track">
+                                        {rowEvents.map(e => {
+                                            const pos = getPos(e.year);
+                                            return (
+                                                <div
+                                                    key={e.id}
+                                                    className="timeline-marker-dot"
+                                                    style={{
+                                                        left: `${pos}%`,
+                                                        backgroundColor: row.color,
+                                                        borderColor: year >= e.year && year <= (e.year_end || e.year + (eraRange * 0.01)) ? '#fff' : row.color
+                                                    }}
+                                                    title={`${language === 'ja' ? (e.name_ja || e.name) : (e.name_en || e.name)} (${formatYear(e.year, language)})`}
+                                                    onClick={() => {
+                                                        setYear(e.year);
+                                                        setSelectedEvent(e);
+                                                        if (map.current) map.current.flyTo({ center: [e.lon, e.lat], zoom: 6 });
+                                                    }}
+                                                />
+                                            );
+                                        })}
+                                        {/* Current year indicator line */}
+                                        <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        });
+
+                        // Migration paths row
+                        const migrationRow = migrationDots.length > 0 ? (
+                            <div key="migration-paths" className="era-row visible" style={{ minHeight: '18px' }}>
+                                <div className="era-label" style={{ color: '#ffcc00' }}>
+                                    {language === 'ja' ? '拡散' : 'Routes'}
+                                </div>
+                                <div className="timeline-marker-track">
+                                    {migrationDots.map(m => (
+                                        <div
+                                            key={m.id}
+                                            className="timeline-marker-dot"
+                                            style={{
+                                                left: `${m.pos}%`,
+                                                backgroundColor: '#ffcc00',
+                                                borderColor: year >= m.year ? '#fff' : '#ffcc00',
+                                                width: '6px',
+                                                height: '6px',
+                                            }}
+                                            title={`${m.name} (${formatYear(m.year, language)})`}
+                                            onClick={() => setYear(m.year)}
+                                        />
+                                    ))}
+                                    <div className="timeline-cursor" style={{ left: `${getPos(year)}%` }} />
+                                </div>
+                            </div>
+                        ) : null;
+
+                        return [...eventElements, migrationRow];
+                    })()}
+
                     <div className="controls">
                         <div className="year-display">
-                            {formatYear(year)}
+                            {formatYear(year, language)}
                         </div>
                         <input
                             type="range"
@@ -490,7 +1146,7 @@ function App() {
                     </div>
                 </div>
             </footer>
-        </div>
+        </div >
     )
 }
 

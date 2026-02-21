@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新履歴 - History Visualizer</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            border-bottom: 2px solid #334155;
+            padding-bottom: 0.5rem;
+        }
+
+        .lang-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(56, 189, 248, 0.2);
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .lang-toggle:hover {
+            background: rgba(56, 189, 248, 0.4);
+        }
+
+        .update-item {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #1e293b;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .date {
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #38bdf8;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="lang-toggle" onclick="toggleLang()">🌐 EN</button>
+
+    <h1 id="page-title">更新履歴 (Update History)</h1>
+    <div class="update-item">
+        <p class="date">2026-02-22 — v1.20</p>
+        <ul class="log-ja">
+            <li>主要各国の時代区分タブ追加：アメリカ、イギリス、フランス、ドイツの時代区分・トピックを大幅拡充</li>
+            <li>合計 75件以上の新規歴史トピックを追加（欧米主要国の重要イベント）</li>
+            <li>タイムラインへの各国の専用時代マーカー行の統合、およびクリックによるイベント連動の実装</li>
+            <li>クリック時のイベント検索ロジックの改善：地理的に近いイベントを優先的に表示するように調整</li>
+        </ul>
+        <ul class="log-en" style="display:none;">
+            <li>Added Major Country Tabs: Expanded historical eras and topics for USA, UK, France, and Germany.</li>
+            <li>Added 75+ new historical events (Key milestones for major Western nations).</li>
+            <li>Integrated country-specific era marker rows on the timeline with direct event linking.</li>
+            <li>Improved click-to-event discovery: Refined search logic to prioritize geographically closest events.
+            </li>
+        </ul>
+    </div>
+
+    <div class="update-item">
+        <p class="date">2026-02-22 — v1.10</p>
+        <ul class="log-ja">
+            <li>日本の時代区分トピックスを大幅追加（縄文～令和まで全時代の転換点イベント 35件+）</li>
+            <li>タイムバーに日本・中国の時代マーカードットを統合表示（ラベル＋マーカーを1行化）</li>
+            <li>時代マーカーのクリックでイベント詳細モーダル表示＋地図フライ（イベント一覧と同じ動作）</li>
+            <li>移動ルート（矢印/点線）のオン・オフトグル追加</li>
+            <li>進化・文明・移動・近現代・戦争等のイベント種別ごとのオン・オフトグル追加</li>
+            <li>表示設定を2列コンパクトグリッドに再構成（地図/統計/時代区分/イベント種別のグループ分け＋区切り線）</li>
+            <li>トグルスイッチをミニサイズ化し、イベント一覧の表示領域を拡大</li>
+        </ul>
+        <ul class="log-en" style="display:none;">
+            <li>Major expansion of Japan era events (35+ events from Jōmon to Reiwa, covering all era transitions)</li>
+            <li>Integrated era marker dots on Japan/China timeline rows (label + markers merged into single line)</li>
+            <li>Era marker click opens event detail modal + map fly-to (same behavior as event list)</li>
+            <li>Added toggle for migration routes (arrows/dotted lines) on/off</li>
+            <li>Added per-category event toggles (Evolution, Civilization, Migration, Modern, Wars, etc.)</li>
+            <li>Reorganized Visual Controls into 2-column compact grid with grouped sections (Map/Stats/Eras/Events)
+            </li>
+            <li>Mini-sized toggle switches to maximize Event List display area</li>
+        </ul>
+    </div>
+
+    <div class="update-item">
+        <p class="date">2026-02-21</p>
+        <ul class="log-ja">
+            <li>EN/JA 言語切り替え機能の実装</li>
+            <li>Wikipediaデータを基にした「人の移動の歴史」ルートの追加（オーストロネシア海路拡大、ウラル系民族など）</li>
+            <li>移動ルートの可視化改善（MapLibreでの描画・移動マーカー）</li>
+            <li>更新履歴セクションの追加</li>
+            <li>情報量レベルによるVisual Controlsの動的表示切り替え</li>
+            <li>全UI要素の完全英語対応</li>
+        </ul>
+        <ul class="log-en" style="display:none;">
+            <li>EN/JA language toggle</li>
+            <li>Human migration routes from Wikipedia (Austronesian, Uralic, Indo-European, etc.)</li>
+            <li>Migration route visualization with animated moving markers</li>
+            <li>Update history section added</li>
+            <li>Detail-level filtering for Visual Controls</li>
+            <li>Full English translation of all UI elements</li>
+        </ul>
+    </div>
+
+    <div class="update-item">
+        <p class="date">2026-02-20</p>
+        <ul class="log-ja">
+            <li>マーカー表示機能の修正と安定化</li>
+            <li>地球平均気温表示機能の追加（トグルスイッチ）</li>
+            <li>時代区分（日本・中国・世界）の表示改善</li>
+        </ul>
+        <ul class="log-en" style="display:none;">
+            <li>Fixed and stabilized marker display</li>
+            <li>Added global average temperature display (toggle switch)</li>
+            <li>Improved era labels (Japan, China, World)</li>
+        </ul>
+    </div>
+
+    <a href="/" class="back-link" id="back-link">← シミュレーターに戻る</a>
+
+    <script>
+        let currentLang = 'ja';
+        function toggleLang() {
+            currentLang = currentLang === 'ja' ? 'en' : 'ja';
+            document.querySelector('.lang-toggle').textContent = currentLang === 'ja' ? '🌐 EN' : '🌐 JA';
+            document.getElementById('page-title').textContent = currentLang === 'ja' ? '更新履歴 (Update History)' : 'Update History';
+            document.getElementById('back-link').textContent = currentLang === 'ja' ? '← シミュレーターに戻る' : '← Back to Simulator';
+            document.querySelectorAll('.log-ja').forEach(el => el.style.display = currentLang === 'ja' ? '' : 'none');
+            document.querySelectorAll('.log-en').forEach(el => el.style.display = currentLang === 'en' ? '' : 'none');
+        }
+    </script>
+</body>
+
+</html>

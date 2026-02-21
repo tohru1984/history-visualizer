@@ -231,6 +231,54 @@ input:checked+.slider::before {
     transform: translateX(16px);
 }
 
+/* Compact 2-column controls grid */
+.controls-compact {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 8px;
+    align-items: center;
+}
+
+.controls-group-label {
+    grid-column: 1 / -1;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 0 1px;
+    margin-top: 2px;
+    border-top: 1px solid #333;
+}
+
+.controls-group-label:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.toggle-switch.mini {
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    padding: 1px 0;
+}
+
+.toggle-switch.mini .slider {
+    width: 26px;
+    height: 14px;
+    min-width: 26px;
+    border-radius: 7px;
+}
+
+.toggle-switch.mini .slider::before {
+    width: 10px;
+    height: 10px;
+}
+
+.toggle-switch.mini input:checked+.slider::before {
+    transform: translateX(12px);
+}
+
 /* Event List */
 .event-list {
     display: flex;
@@ -710,4 +758,97 @@ footer {
         opacity: 1;
         transform: translate(-50%, 0) scale(1);
     }
+}
+
+/* Update History Summary Box */
+.update-summary-box {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    width: 260px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    z-index: 1100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: slideInUp 0.6s ease-out;
+}
+
+.update-summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #38bdf8;
+    text-transform: uppercase;
+}
+
+.update-summary-header a {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.65rem;
+}
+
+.update-summary-header a:hover {
+    color: #38bdf8;
+    text-decoration: underline;
+}
+
+.update-list-mini {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.update-list-mini li {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Timeline event marker track */
+.timeline-marker-track {
+    flex: 1;
+    position: relative;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    overflow: visible;
+}
+
+.timeline-marker-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 2;
+}
+
+.timeline-marker-dot:hover {
+    transform: translate(-50%, -50%) scale(1.8);
+    box-shadow: 0 0 8px currentColor;
+    z-index: 10;
+}
+
+.timeline-cursor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 1;
 }

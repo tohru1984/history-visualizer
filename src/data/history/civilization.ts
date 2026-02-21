@@ -360,5 +360,116 @@ export const civilizationEvents: HumanEvent[] = [
         lat: 43.7, lon: 11.2,
         description: 'イタリア。地動説を実証し、神話的世界観から科学的宇宙観へ。',
         type: 'civilization'
+    },
+
+    // ===== 日本の時代区分 転換トピックス =====
+
+    {
+        id: 'jp_jomon_start',
+        name: '縄文時代の始まり',
+        name_ja: '縄文時代の始まり',
+        name_en: 'Jōmon Period Begins',
+        year: -14000, year_end: -1000,
+        lat: 35.7, lon: 139.7,
+        description: '土器の使用が始まる。狩猟・採集・漁労を基盤とした定住生活。世界最古級の土器文化。',
+        description_en: 'The pottery-using era begins. Settled life based on hunting, gathering, and fishing. One of the world\'s oldest pottery cultures.',
+        type: 'civilization',
+        importance: 5
+    },
+    {
+        id: 'jp_taika_reform',
+        name: '大化の改新',
+        name_ja: '大化の改新',
+        name_en: 'Taika Reform',
+        year: 645, year_end: 650,
+        lat: 34.7, lon: 135.5,
+        description: '中大兄皇子と中臣鎌足による政変。律令国家への転換。日本初の元号「大化」を制定。',
+        description_en: 'Prince Naka no Ōe and Nakatomi no Kamatari launch a coup. Japan adopts its first era name "Taika" and transitions to a centralized state.',
+        type: 'civilization',
+        importance: 5
+    },
+    {
+        id: 'jp_nara_heijokyo',
+        name: '平城京遷都 (奈良時代の始まり)',
+        name_ja: '平城京遷都 (奈良時代の始まり)',
+        name_en: 'Nara Capital Established',
+        year: 710, year_end: 794,
+        lat: 34.7, lon: 135.8,
+        description: '唐の長安を模した本格的な都城。律令国家体制の完成。東大寺や正倉院が建造。',
+        description_en: 'A capital modeled after Tang China\'s Chang\'an. The ritsuryō state takes full form. Tōdai-ji and Shōsō-in are built.',
+        type: 'civilization',
+        importance: 5
+    },
+    {
+        id: 'jp_heian_sento',
+        name: '平安京遷都 (平安時代の始まり)',
+        name_ja: '平安京遷都 (平安時代の始まり)',
+        name_en: 'Heian Capital Established',
+        year: 794, year_end: 1185,
+        lat: 35.0, lon: 135.7,
+        description: '桓武天皇が平安京（京都）に遷都。約400年の貴族文化の華が開く。「平安」の名の通り、比較的安定した時代。',
+        description_en: 'Emperor Kanmu moves the capital to Heian-kyō (Kyoto). ~400 years of aristocratic culture flourish in relative peace.',
+        type: 'civilization',
+        importance: 5
+    },
+    {
+        id: 'jp_muromachi_shogunate',
+        name: '室町幕府の成立',
+        name_ja: '室町幕府の成立',
+        name_en: 'Muromachi Shogunate Established',
+        year: 1336, year_end: 1573,
+        lat: 35.0, lon: 135.7,
+        description: '足利尊氏が京都に幕府を開く。金閣寺・銀閣寺、能楽、侘び茶など日本文化の礎が築かれた。',
+        description_en: 'Ashikaga Takauji opens a shogunate in Kyoto. Kinkaku-ji, Noh theater, and wabi-cha tea culture take root.',
+        type: 'civilization',
+        importance: 5
+    },
+    {
+        id: 'jp_toyotomi_unification',
+        name: '豊臣秀吉の天下統一',
+        name_ja: '豊臣秀吉の天下統一',
+        name_en: 'Toyotomi Hideyoshi Unifies Japan',
+        year: 1590, year_end: 1598,
+        lat: 34.7, lon: 135.5,
+        description: '農民出身から天下人へ。太閤検地、刀狩り、朝鮮出兵。身分秩序の固定化。',
+        description_en: 'From peasant to supreme ruler. Land surveys, sword hunts, and the Korean expeditions. Social classes become fixed.',
+        type: 'civilization',
+        importance: 5
+    },
+    {
+        id: 'jp_mongol_invasion',
+        name: '元寇 (モンゴル襲来)',
+        name_ja: '元寇 (モンゴル襲来)',
+        name_en: 'Mongol Invasions of Japan',
+        year: 1274, year_end: 1281,
+        lat: 33.6, lon: 130.3,
+        description: '文永の役（1274）と弘安の役（1281）。「神風」が吹き、鎌倉武士と嵐がモンゴル軍を退けた。',
+        description_en: 'Two Mongol invasion attempts repelled by samurai warriors and typhoons — the legendary "kamikaze" (divine wind).',
+        type: 'civilization',
+        importance: 3
+    },
+    {
+        id: 'jp_sakoku',
+        name: '鎖国体制の完成',
+        name_ja: '鎖国体制の完成',
+        name_en: 'Sakoku (National Isolation) Complete',
+        year: 1641, year_end: 1853,
+        lat: 32.7, lon: 129.9,
+        description: '出島を唯一の窓口として対外貿易を制限。約200年の平和と独自文化の醸成。',
+        description_en: 'Foreign trade restricted to Dejima island. ~200 years of peace and unique cultural development.',
+        type: 'civilization',
+        importance: 3
+    },
+    {
+        id: 'jp_perry',
+        name: '黒船来航 (ペリー提督)',
+        name_ja: '黒船来航 (ペリー提督)',
+        name_en: 'Arrival of the Black Ships (Commodore Perry)',
+        year: 1853, year_end: 1854,
+        lat: 35.3, lon: 139.6,
+        description: '1853年7月8日。米国ペリー提督が浦賀に来航。開国要求が江戸幕府の崩壊を加速。',
+        description_en: 'July 8, 1853: US Commodore Perry arrives at Uraga. The demand to open Japan accelerates the fall of the Tokugawa shogunate.',
+        type: 'civilization',
+        importance: 5
     }
 ];
