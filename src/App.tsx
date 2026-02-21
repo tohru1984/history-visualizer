@@ -109,11 +109,9 @@ function App() {
                 source: 'events',
                 paint: {
                     'circle-radius': [
-                        'match',
-                        ['get', 'type'],
-                        'megafauna', ['interpolate', ['linear'], ['zoom'], 1, 6, 12, 12],
-                        'hominin', ['interpolate', ['linear'], ['zoom'], 1, 15, 12, 35],
-                        ['interpolate', ['linear'], ['zoom'], 1, 6, 12, 12]
+                        '*',
+                        ['interpolate', ['linear'], ['zoom'], 1, 1, 12, 2],
+                        ['match', ['get', 'type'], 'hominin', 15, 6]
                     ],
                     'circle-color': ['get', 'color'],
                     'circle-blur': [
