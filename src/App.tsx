@@ -834,11 +834,32 @@ function App() {
                                         </a>
                                     </div>
                                 )}
+                                <div className="modal-affiliate" style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+                                    <a
+                                        href={`https://www.amazon.co.jp/s?k=${encodeURIComponent((selectedEvent.name_ja || selectedEvent.name) + ' 本')}&tag=unimix84-22`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="amazon-button"
+                                        style={{
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                                            background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff',
+                                            padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold',
+                                            transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                                            width: '100%', boxSizing: 'border-box'
+                                        }}
+                                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 12px rgba(245, 158, 11, 0.4)'; }}
+                                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)'; }}
+                                    >
+                                        <span style={{ fontSize: '1.2rem' }}>📚</span>
+                                        {language === 'ja' ? 'このトピックの関連書籍を探す (Amazon)' : 'Find related books on Amazon'}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                )}
-            </main>
+                )
+                }
+            </main >
 
             <footer>
                 {/* Update History Summary Overlay */}
