@@ -828,7 +828,9 @@ function App() {
                                 {selectedEvent.sourceUrl && (
                                     <div className="modal-footer">
                                         <a href={selectedEvent.sourceUrl} target="_blank" rel="noopener noreferrer" className="source-button">
-                                            {language === 'ja' ? 'Wikipediaで詳しく見る ↗' : 'Read more on Wikipedia ↗'}
+                                            {selectedEvent.sourceUrl.includes('wikipedia.org')
+                                                ? (language === 'ja' ? 'Wikipediaで詳しく見る ↗' : 'Read more on Wikipedia ↗')
+                                                : (language === 'ja' ? '元の解説サイトで詳しく見る ↗' : 'Read original article ↗')}
                                         </a>
                                     </div>
                                 )}
