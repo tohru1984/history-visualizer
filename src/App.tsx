@@ -846,8 +846,8 @@ function App() {
                         <a href="update_history.html" target="_blank" rel="noopener noreferrer">{language === 'ja' ? 'すべて見る' : 'See all'}</a>
                     </div>
                     <ul className="update-list-mini">
-                        <li>{language === 'ja' ? '🎯 時代マーカーの年代完全同期' : '🎯 Exact Era Marker Sync'}</li>
-                        <li>{language === 'ja' ? '⚔️ WWIIビジュアライザー' : '⚔️ WWII Visualizer'}</li>
+                        <li>{language === 'ja' ? '🦣 人類の起源 最新30種+追加' : '🦣 Huge Evolution Overhaul'}</li>
+                        <li>{language === 'ja' ? '🧠 推定 脳容積 の新指標' : '🧠 New Brain Capacity Metric'}</li>
                     </ul>
                 </div>
 
