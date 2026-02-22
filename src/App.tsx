@@ -441,6 +441,20 @@ function App() {
     const population = getPopulation(year);
     const temperature = getTemperature(year);
 
+    const getBrainCapacity = (currentYear: number) => {
+        if (!showEvolution || currentYear > 0 || currentYear < -7000000) return null;
+        if (currentYear < -4000000) return 350;
+        if (currentYear < -2500000) return 450;
+        if (currentYear < -2000000) return 500;
+        if (currentYear < -1500000) return 600;
+        if (currentYear < -1000000) return 850;
+        if (currentYear < -500000) return 1000;
+        if (currentYear < -300000) return 1200;
+        if (currentYear < -100000) return 1350;
+        return 1400;
+    };
+    const brainCapacity = getBrainCapacity(year);
+
     // WWII Status Logic
     const getWW2Status = (currentYear: number) => {
         if (!showWW2 || currentYear < 1939 || currentYear > 1945.7) return null;
@@ -597,6 +611,17 @@ function App() {
                     <div className="status-badge temperature-badge">
                         <div className="badge-label">{language === 'ja' ? '世界の平均気温' : 'Avg Temp'}</div>
                         <div className="badge-value">{temperature.toFixed(1)} <span className="unit">℃</span></div>
+                    </div>
+                )}
+
+                {brainCapacity && (
+                    <div className="status-badge" style={{ marginTop: '0.5rem', background: 'rgba(56, 189, 248, 0.15)', borderLeft: '4px solid #38bdf8' }}>
+                        <div className="badge-group">
+                            <div className="badge-item" style={{ minWidth: '100%' }}>
+                                <div className="badge-label" style={{ color: '#bae6fd' }}>{language === 'ja' ? '推定 脳容積' : 'Est. Brain Capacity'}</div>
+                                <div className="badge-value" style={{ fontSize: '1.2rem', color: '#e0f2fe' }}>{brainCapacity} <span className="unit" style={{ fontSize: '0.9rem', color: '#bae6fd' }}>cc</span></div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
