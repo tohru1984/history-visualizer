@@ -12,7 +12,7 @@ export const evolutionEvents: HumanEvent[] = [
         description: 'ケニア。ゴリラ、チンパンジー、人類の共通祖先の系統に近いとされる初期の類人猿。',
         description_ja: 'ケニア。ゴリラ、チンパンジー、人類の共通祖先の系統に近いとされる初期の類人猿。',
         description_en: 'Kenya. An early ape close to the common ancestor of gorillas, chimpanzees, and humans.',
-        sourceUrl: 'https://www.jst.go.jp/pr/info/info449/index.html',
+        sourceUrl: 'https://museum.shimane-u.ac.jp/nakayamai.html',
         importance: 4
     },
     {
@@ -26,7 +26,7 @@ export const evolutionEvents: HumanEvent[] = [
         description: 'エチオピア。ゴリラ系統へ分岐した最古の類の可能性があり、大きな歯を持つ。',
         description_ja: 'エチオピア。ゴリラ系統へ分岐した最古の類の可能性があり、大きな歯を持つ。',
         description_en: 'Ethiopia. Possibly the oldest ape to branch into the gorilla lineage, characterized by large teeth.',
-        sourceUrl: 'https://www.u-tokyo.ac.jp/focus/ja/press/p01_260211.html',
+        sourceUrl: 'https://www.um.u-tokyo.ac.jp/UMUTopenlab/library/b_44.html',
         importance: 4
     },
     {
